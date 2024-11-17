@@ -1,0 +1,172 @@
+.width-100 {
+    width: 100% !important;
+}
+
+.width-70 {
+    width: 70% !important;
+}
+
+.debug-border {
+    border: 1px solid red;
+}
+
+.header-component {
+    height: 49px;
+}
+
+.header-box-item {
+    width: 249px;
+    padding: 10px;
+    border-radius: 0;
+}
+
+.commit-list-nav {
+    width: 249px;
+    height: calc(100vh - 51px);
+    padding-left: 0;
+    padding-right: 0;
+    overflow-y: auto;
+}
+
+.file-list-nav {
+    width: 270px;
+    height: calc(100vh - 121px);
+    padding-left: 0;
+    padding-right: 0;
+    overflow-y: auto;
+}
+
+.title-file-header {
+    height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.title-file-header > p {
+    margin-top: 4px;
+    margin-bottom: 0;
+    font-size: 12px;
+}
+
+/* Thanh cuộn cho trình duyệt WebKit (Chrome, Safari) */
+.commit-list-nav .file-list-nav::-webkit-scrollbar {
+    width: 6px; /* Độ rộng của thanh cuộn */
+}
+
+.commit-list-nav .file-list-nav::-webkit-scrollbar-track {
+    border-radius: 10px; /* Làm tròn nền của thanh cuộn */
+}
+
+.commit-list-nav .file-list-nav::-webkit-scrollbar-thumb {
+    background: #c1c1c1; /* Màu của thanh cuộn */
+    border-radius: 10px; /* Làm tròn thanh cuộn */
+}
+
+.commit-list-nav .file-list-nav::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0; /* Màu của thanh cuộn khi hover */
+}
+
+/* Tùy chỉnh thanh cuộn cho Firefox */
+.SideNav {
+    scrollbar-width: thin; /* Làm cho thanh cuộn nhỏ hơn */
+}
+
+.height-49 {
+    height: 49px;
+}
+
+.width-15 {
+    width: 15% !important;
+}
+
+.description {
+    color: #959da5 !important;
+    font-size: 11px;
+}
+.icon {
+    outline: none;
+}
+
+.commit-message-text{
+    font-size: 12px;
+    margin-bottom: -3px;
+}
+
+.commit-items {
+
+}
+.commit-items.selected {
+    background-color: #0a53be;
+    color: white;
+}
+.subnav-search-commit {
+    padding: 10px 5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: inherit;
+}
+
+.file-list-nav > div {
+    height: 30px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: inherit;
+}
+.detail-commit-area {
+    width: calc(100% - 249px);
+    padding-left: 0;
+    padding-right: 0;
+}
+.detail-commit{
+    padding-left: 20px;
+    width: 100%;
+    height: 70px;
+}
+.commit-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.visual-avatar {
+    width: 24px;
+    height: 24px;
+}
+.copy-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px; /* Đảm bảo padding để SVG vừa gọn trong button */
+    background-color: transparent; /* Hoặc màu nền tùy ý */
+    border: none; /* Hoặc viền tùy ý */
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+.copy-button svg {
+    height: 16px; /* Đảm bảo kích thước SVG phù hợp */
+    width: 16px;
+}
+
+.file-items {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.status-new {
+    color: green;
+}
+
+.status-modified {
+    color: #cca00c;
+}
+
+.status-renamed {
+    color: blue;
+}
+
+.status-deleted {
+    color: red;
+}
