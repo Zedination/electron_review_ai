@@ -48,27 +48,27 @@
     font-size: 12px;
 }
 
-/* Thanh cuộn cho trình duyệt WebKit (Chrome, Safari) */
-.commit-list-nav .file-list-nav::-webkit-scrollbar {
+ /*Thanh cuộn cho trình duyệt WebKit (Chrome, Safari)*/
+*::-webkit-scrollbar {
     width: 6px; /* Độ rộng của thanh cuộn */
 }
 
-.commit-list-nav .file-list-nav::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
     border-radius: 10px; /* Làm tròn nền của thanh cuộn */
 }
 
-.commit-list-nav .file-list-nav::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
     background: #c1c1c1; /* Màu của thanh cuộn */
     border-radius: 10px; /* Làm tròn thanh cuộn */
 }
 
-.commit-list-nav .file-list-nav::-webkit-scrollbar-thumb:hover {
+*::-webkit-scrollbar-thumb:hover {
     background: #a0a0a0; /* Màu của thanh cuộn khi hover */
 }
 
 /* Tùy chỉnh thanh cuộn cho Firefox */
-.SideNav {
-    scrollbar-width: thin; /* Làm cho thanh cuộn nhỏ hơn */
+* {
+    scrollbar-width: auto; /* Làm cho thanh cuộn nhỏ hơn */
 }
 
 .height-49 {

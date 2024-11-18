@@ -7,14 +7,27 @@
   "version": "1.0.0",
   "main": "main.js",
   "devDependencies": {
-    "electron": "^33.2.0"
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron ."
   },
+  "build": {
+    "appId": "dev.zedination.drai",
+    "productName": "DRAI",
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64", "ia32"]
+        }
+      ]
+    }
+  },
   "keywords": [],
-  "author": "",
+  "author": "Zedination",
   "license": "MIT",
   "description": ""
 }
