@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8" />
+    <!-- Make sure to load the highlight.js CSS file before the Diff2Html CSS file -->
+    ${styleFrame}
+    <style>
+        /* Thanh cuộn cho trình duyệt WebKit (Chrome, Safari) */
+        *::-webkit-scrollbar {
+            width: 6px; /* Độ rộng của thanh cuộn */
+            height: 6px;
+        }
+
+        *::-webkit-scrollbar-track {
+            border-radius: 10px; /* Làm tròn nền của thanh cuộn */
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: #c1c1c1; /* Màu của thanh cuộn */
+            border-radius: 10px; /* Làm tròn thanh cuộn */
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0; /* Màu của thanh cuộn khi hover */
+        }
+    </style>
+    <script type="text/javascript" src="common_js/diff2html.min.js"></script>
+    <script type="text/javascript" src="common_js/diff2html-ui.min.js"></script>
+</head>
+<body>
+<div id="diff" ${styleDiffEl}>
+    ${diffHtmlValue}
+</div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const targetElement = document.getElementById('diff');
+        const diff2htmlUi = new Diff2HtmlUI(targetElement);
+        diff2htmlUi.fileListToggle(false);
+        diff2htmlUi.fileContentToggle();
+        diff2htmlUi.synchronisedScroll();
+        diff2htmlUi.highlightCode();
+    });
+</script>
+</html>

@@ -79,7 +79,7 @@ createApp({
             })
         })
 
-        const generateHtmlFromDiffText = (diffText) => {
+        const generateHtmlFromDiffText = async (diffText) => {
             let colorScheme = 'light';
             let styleDiffEl = ``;
             let styleFrame = '';
@@ -87,25 +87,9 @@ createApp({
             if (htmlEl[0].getAttribute("data-color-mode") === "dark") {
                 styleDiffEl = `style="background-color: #0e1117"`;
                 colorScheme = 'dark';
-                styleFrame = `<link rel="stylesheet" href="css/github-dark.min.css" />
-    <link
-            rel="stylesheet"
-            type="text/css"
-            href="css/diff2html-dark.css"
-    />
-    <!-- nếu dark-mode-on -->
-    <style>
-        html {
-            background-color: #0e1117;
-        }
-    </style>`;
+                styleFrame = await fetchTemplate('style_dark.html', {});
             } else {
-                styleFrame = `<link rel="stylesheet" href="css/github.min.css" />
-    <link
-            rel="stylesheet"
-            type="text/css"
-            href="css/diff2html.min.css"
-    />`;
+                styleFrame = await fetchTemplate('style_light.html', {});
             }
 
             diffHtml.value = Diff2Html.html(diffText, {
@@ -117,52 +101,7 @@ createApp({
             });
 
             // sử dụng iframe
-            const srcDoc = `<!doctype html>
-<html lang="en-us">
-<head>
-    <meta charset="utf-8" />
-    <!-- Make sure to load the highlight.js CSS file before the Diff2Html CSS file -->
-    ${styleFrame}
-    <style>
-        /* Thanh cuộn cho trình duyệt WebKit (Chrome, Safari) */
-*::-webkit-scrollbar {
-    width: 6px; /* Độ rộng của thanh cuộn */
-    height: 6px;
-}
-
-*::-webkit-scrollbar-track {
-    border-radius: 10px; /* Làm tròn nền của thanh cuộn */
-}
-
-*::-webkit-scrollbar-thumb {
-    background: #c1c1c1; /* Màu của thanh cuộn */
-    border-radius: 10px; /* Làm tròn thanh cuộn */
-}
-
-*::-webkit-scrollbar-thumb:hover {
-    background: #a0a0a0; /* Màu của thanh cuộn khi hover */
-}
-    </style>
-    <script type="text/javascript" src="common_js/diff2html.min.js"></script>
-    <script type="text/javascript" src="common_js/diff2html-ui.min.js"></script>
-</head>
-<body>
-<div id="diff" ${styleDiffEl}>
-${diffHtml.value}
-</div>
-</body>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const targetElement = document.getElementById('diff');
-        const diff2htmlUi = new Diff2HtmlUI(targetElement);
-        diff2htmlUi.fileListToggle(false);
-        diff2htmlUi.fileContentToggle();
-        diff2htmlUi.synchronisedScroll();
-        diff2htmlUi.highlightCode();
-    });
-</script>
-</html>
-`;
+            const srcDoc = await fetchTemplate('template_diff.html', {styleDiffEl, styleFrame, diffHtmlValue: diffHtml.value});
             console.log(srcDoc);
             const iframeDocument = iframeRefDiff.value.contentDocument || iframeRefDiff.value.contentWindow.document;
             iframeDocument.open();
