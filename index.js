@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
 VueJs code
 */
 
-const { createApp, ref, onMounted, onBeforeUnmount} = Vue;
+const { createApp, ref, onMounted, onBeforeUnmount, computed, defineModel} = Vue;
 createApp({
     setup() {
         const repoName = ref('');
@@ -21,6 +21,7 @@ createApp({
         const diffHtml = ref(null);
         const shadowContainerDiff = ref(null);
         const iframeRefDiff = ref(null);
+        const searchCommitQuery = ref('');
 
         const selectItem = (log, event) => {
 
@@ -58,6 +59,25 @@ createApp({
                 selectedLogs.value = new Set();
             }
         };
+
+        const updateSearchQuery = event => {
+            searchCommitQuery.value = event.target.value;
+        }
+
+        const filteredLogs = computed(() => {
+            console.log("compured ===============")
+            if (searchCommitQuery.value.trim().length === 0) {
+                return allLogs.value;
+            }
+            return allLogs.value.filter((log) => {
+                const trimedQuery = searchCommitQuery.value.trim().toLowerCase();
+                return log.hash.includes(trimedQuery)
+                    || removeVietnameseTones(log.message.toLowerCase()).includes(removeVietnameseTones(trimedQuery))
+                    || removeVietnameseTones(log.author_name.toLowerCase()).includes(removeVietnameseTones(trimedQuery))
+                    || removeVietnameseTones(log.author_email.toLowerCase()).includes(removeVietnameseTones(trimedQuery))
+                    || log.date.toLowerCase().includes(trimedQuery);
+            })
+        })
 
         const generateHtmlFromDiffText = (diffText) => {
             let colorScheme = 'light';
@@ -122,39 +142,6 @@ createApp({
 *::-webkit-scrollbar-thumb:hover {
     background: #a0a0a0; /* Màu của thanh cuộn khi hover */
 }
-/*html::-webkit-scrollbar {*/
-/*    width: 6px; !* Độ rộng của thanh cuộn *!*/
-/*}*/
-
-/*html::-webkit-scrollbar-track {*/
-/*    border-radius: 10px; !* Làm tròn nền của thanh cuộn *!*/
-/*}*/
-
-/*html::-webkit-scrollbar-thumb {*/
-/*    background: #c1c1c1; !* Màu của thanh cuộn *!*/
-/*    border-radius: 10px; !* Làm tròn thanh cuộn *!*/
-/*}*/
-
-/*html::-webkit-scrollbar-thumb:hover {*/
-/*    background: #a0a0a0; !* Màu của thanh cuộn khi hover *!*/
-/*}*/
-
-/*.d2h-file-side-diff::-webkit-scrollbar {*/
-/*    height: 6px; !* Độ rộng của thanh cuộn *!*/
-/*}*/
-
-/*.d2h-file-side-diff::-webkit-scrollbar-track {*/
-/*    border-radius: 10px; !* Làm tròn nền của thanh cuộn *!*/
-/*}*/
-
-/*.d2h-file-side-diff::-webkit-scrollbar-thumb {*/
-/*    background: #c1c1c1; !* Màu của thanh cuộn *!*/
-/*    border-radius: 10px; !* Làm tròn thanh cuộn *!*/
-/*}*/
-
-/*.d2h-file-side-diff::-webkit-scrollbar-thumb:hover {*/
-/*    background: #a0a0a0; !* Màu của thanh cuộn khi hover *!*/
-/*}*/
     </style>
     <script type="text/javascript" src="common_js/diff2html.min.js"></script>
     <script type="text/javascript" src="common_js/diff2html-ui.min.js"></script>
@@ -215,12 +202,14 @@ ${diffHtml.value}
             diffHtml,
             shadowContainerDiff,
             iframeRefDiff,
+            filteredLogs,
 
             // function
             selectItem,
             selectedFileItem,
             getFirstLogSelected,
-            getGravatarUrl
+            getGravatarUrl,
+            updateSearchQuery
         }
     },
 }).mount('#app');

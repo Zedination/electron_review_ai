@@ -61,7 +61,7 @@
     <div class="row">
         <nav class="SideNav border commit-list-nav">
             <div class="input-group subnav-search-commit">
-                <input class="form-control" type="text" placeholder="search commit" aria-label="search commit"/>
+                <input v-model="searchCommitQuery" @input="updateSearchQuery($event)" class="form-control" type="text" placeholder="search commit" aria-label="search commit"/>
                 <span class="input-group-button">
             <button class="btn" type="button" aria-label="search commit">
               <svg aria-hidden="true" class="octicon icon" version="1.1" viewBox="0 0 16 16" tabindex="-1"
@@ -71,7 +71,7 @@
             </button>
           </span>
             </div>
-            <a v-for="(log, index) in allLogs" :key="log.hash" class="SideNav-item commit-items" href="#" :class="{ selected: selectedLogs.has(log) }" @click="selectItem(log, $event)">
+            <a v-for="(log, index) in filteredLogs" :key="log.hash" class="SideNav-item commit-items" href="#" :class="{ selected: selectedLogs.has(log) }" @click="selectItem(log, $event)">
                 <p class="commit-message-text">{{log.message}}</p>
                 <span class="description">{{log.author_name}}</span> <span> • </span> <span class="description">{{log.date}}</span>
                 <input type="hidden" v-model="log.hash">
@@ -137,6 +137,7 @@
 <script src="common_js/bootstrap.bundle.min.js"></script>
 <script src="common_js/vue.global.js"></script>
 <script src="common_js/md5.min.js"></script>
+<script src="common_js/common_utils.js"></script>
 <script type="text/javascript" src="common_js/diff2html-ui.min.js"></script>
 <script type="text/javascript" src="common_js/diff2html.min.js"></script>
 <script src="index.js"></script>
