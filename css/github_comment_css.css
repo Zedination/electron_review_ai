@@ -1,0 +1,129 @@
+.comment-container {
+    background: #161b22;
+    border: 1px solid #30363d;
+    /*border-radius: 6px;*/
+    padding: 16px;
+    margin: 0 auto;
+    box-shadow: 0 1px 3px rgba(27, 31, 35, 0.15);
+    display: none; /* Ẩn phần tử */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0; /* Khi bị ẩn, opacity là 0 */
+}
+
+.toggle_button_comment {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.toggle_content_wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    /*vertical-align: middle !important;*/
+}
+
+.toggle_content_wrapper .ai_icon {
+    width: 7.5em;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.toggle_content_wrapper .comment-container{
+    flex: 1;
+}
+
+.comment-container.show {
+    display: block; /* Hiển thị phần tử */
+    opacity: 1; /* Đặt opacity về 1 */
+}
+
+/* Shared styles for both modes */
+.comment-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.comment-header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.comment-header .user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-header .user-info .username {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.comment-header .user-info .time {
+    font-size: 12px;
+}
+
+.comment-body {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.comment-body p {
+    margin: 0;
+}
+
+.comment-footer {
+    margin-top: 12px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.comment-footer a {
+    text-decoration: none;
+}
+
+.comment-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Light mode styles */
+.comment-container.light-mode {
+    background: #fff;
+    border: 1px solid #d0d7de;
+    color: #24292f;
+}
+
+.comment-container.light-mode .username {
+    color: #0969da;
+}
+
+.comment-container.light-mode .time {
+    color: #57606a;
+}
+
+.comment-container.light-mode .comment-footer a {
+    color: #0969da;
+}
+
+/* Dark mode styles */
+.comment-container.dark-mode {
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+}
+
+.comment-container.dark-mode .username {
+    color: #58a6ff;
+}
+
+.comment-container.dark-mode .time {
+    color: #8b949e;
+}
+
+.comment-container.dark-mode .comment-footer a {
+    color: #58a6ff;
+}

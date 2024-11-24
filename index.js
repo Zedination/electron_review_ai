@@ -22,6 +22,7 @@ createApp({
         const shadowContainerDiff = ref(null);
         const iframeRefDiff = ref(null);
         const searchCommitQuery = ref('');
+        let blockDiffList = [];
 
         const selectItem = (log, event) => {
 
@@ -65,7 +66,6 @@ createApp({
         }
 
         const filteredLogs = computed(() => {
-            console.log("compured ===============")
             if (searchCommitQuery.value.trim().length === 0) {
                 return allLogs.value;
             }
@@ -100,9 +100,29 @@ createApp({
                 renderNothingWhenEmpty: true,
             });
 
+            // parse diff string into block diff list
+            blockDiffList = [];
+            Diff2Html.parse(diffText).forEach(file => {
+                file.blocks.forEach((block, index) => {
+                    let unifiedDiff = block.header;
+                    block.lines.forEach((line) => {
+                        unifiedDiff = unifiedDiff + line.content;
+                    })
+                    const lastLineOfBlock = block.lines.at(-1);
+                    blockDiffList.push({
+                        id: `block_${index+1}`,
+                        line: lastLineOfBlock.oldNumber + "-" + lastLineOfBlock.newNumber,
+                        unifiedDiff
+                    })
+                })
+            })
+
+            const blockInfoStr = JSON.stringify(blockDiffList.map(value => ({id: value.id, line: value.line})));
+
             // sử dụng iframe
-            const srcDoc = await fetchTemplate('template_diff.html', {styleDiffEl, styleFrame, diffHtmlValue: diffHtml.value});
-            console.log(srcDoc);
+            const srcDoc = await fetchTemplate('template_diff.html', {styleDiffEl, styleFrame, blockInfoStr, diffHtmlValue: diffHtml.value});
+
+            //generate html from diff
             const iframeDocument = iframeRefDiff.value.contentDocument || iframeRefDiff.value.contentWindow.document;
             iframeDocument.open();
             iframeDocument.write(srcDoc);

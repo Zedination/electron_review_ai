@@ -94,7 +94,7 @@ async function getDiffTextByHashAndFile(repoPath, filePath, hashList, diffType) 
         case 'diff_commit':
             if (hashList.length === 1) {
                 // diffText = await git.show([`${hashList[0]}:${filePath}`]);
-                diffText = await git.show([hashList[0], '--', filePath, '-U1']);
+                diffText = await git.show([hashList[0], '--', filePath]);
             } else if (hashList.length === 2) {
                 diffText = await git.diff([`${commitHash1}..${commitHash2}`, '--', filePath]);
             }

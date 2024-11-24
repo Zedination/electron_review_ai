@@ -27,15 +27,15 @@ function createWindow() {
     });
 
     ipcMain.handle("request-git-info", async () => {
-        return await getAllInfoGit('D:\\Source Code\\fullstack-chat');
+        return await getAllInfoGit('D:\\Source Code\\Node JS\\electron_review_ai');
     });
 
     ipcMain.handle("request-changed-files", async (event, hash, diffType) => {
-        return await getChangedFilesByDiffHash(hash,'D:\\Source Code\\fullstack-chat', diffType);
+        return await getChangedFilesByDiffHash(hash,'D:\\Source Code\\Node JS\\electron_review_ai', diffType);
     });
 
     ipcMain.handle("request-diff-of-file", async (event, filePath, hashList, diffType) => {
-        return await getDiffTextByHashAndFile('D:\\Source Code\\fullstack-chat', filePath, hashList, diffType);
+        return await getDiffTextByHashAndFile('D:\\Source Code\\Node JS\\electron_review_ai', filePath, hashList, diffType);
     });
 }
 
