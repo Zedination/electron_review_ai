@@ -33,6 +33,7 @@
     ${diffHtmlValue}
 </div>
 </body>
+<script type="text/javascript" src="common_js/marked.min.js"></script>
 <script type="text/javascript" src="common_js/iframe_common_utils.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -79,6 +80,10 @@
                     </tr>`;
 
             targetRow.insertAdjacentHTML('afterend', newRowHtml);
+
+            // sử dụng shadow host để cô lập khỏi css của diff2html
+            const shadowHost = document.getElementById(`comment_body_${blockInfo.id}`);
+            shadowHost.attachShadow({ mode: 'open' });
         });
 
         // đăng ký sự kiện cho các comment block
@@ -108,6 +113,7 @@
                             id: blockInfo.id,
                             requestType: 'request_endpoint_server'
                         }, "*");
+                        toggleButton.setAttribute('askai', "true");
                     }
                 }
                 commentBox.classList.toggle('show');
@@ -122,9 +128,10 @@
             }
             const responseData = event.data;
             let targetEl = document.getElementById(`comment_body_${responseData.id}`);
+            const shadowRoot = targetEl.shadowRoot;
             const endpoint = responseData.endpoint;
             const prompt = responseData.prompt;
-            requestOpenAIServerCompatible(prompt, endpoint, targetEl);
+            requestOpenAIServerCompatible(prompt, endpoint, shadowRoot);
         })
     });
 </script>

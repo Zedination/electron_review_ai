@@ -1,5 +1,6 @@
 async function requestOpenAIServerCompatible(prompt, endpoint, targetElement) {
     targetElement.innerHTML = '';
+    let mdContent = '';
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -45,7 +46,8 @@ async function requestOpenAIServerCompatible(prompt, endpoint, targetElement) {
                 const json = JSON.parse(line.slice(6));
                 const content = json.choices[0].delta?.content;
                 if (content) {
-                    targetElement.textContent += content;
+                    mdContent += content;
+                    targetElement.innerHTML = marked.parse(mdContent);
                 }
             }
         }
