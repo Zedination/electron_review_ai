@@ -79,6 +79,31 @@ createApp({
             })
         })
 
+        window.addEventListener('message', (event) => {
+            if (event.origin !== window.location.origin) {
+                console.warn("Message from untrusted origin:", event.origin);
+                return;
+            }
+
+            // Xử lý dữ liệu nhận được từ iframe
+            const receivedData = event.data;
+            if (receivedData.requestType === 'request_endpoint_server') {
+                // lấy endpoint tại đây
+                let endpoint = 'http://localhost:8000/v1';
+
+                // gửi endpoint và các thông tin liên quan trở lại iframe để thực thi xử lý
+                let iframeEl = document.getElementById('isolated-frame');
+                let prompt = 'tìm lỗi sai và đề xuất sửa lỗi dựa trên đoạn diff string mà tôi cung cấp dưới đây:\n';
+                const targetBlock = blockDiffList.find(value => value.id = receivedData.id);
+                prompt += targetBlock.unifiedDiff;
+                iframeEl.contentWindow.postMessage({
+                    endpoint,
+                    prompt,
+                    id: receivedData.id,
+                }, "*");
+            }
+        });
+
         const generateHtmlFromDiffText = async (diffText) => {
             let colorScheme = 'light';
             let styleDiffEl = ``;
@@ -109,9 +134,15 @@ createApp({
                         unifiedDiff = unifiedDiff + line.content;
                     })
                     const lastLineOfBlock = block.lines.at(-1);
+                    let line = lastLineOfBlock.oldNumber + "-" + lastLineOfBlock.newNumber;
+                    if (!lastLineOfBlock.oldNumber && lastLineOfBlock.newNumber) {
+                        line = lastLineOfBlock.newNumber;
+                    } else if (!lastLineOfBlock.newNumber && lastLineOfBlock.oldNumber) {
+                        line = lastLineOfBlock.oldNumber;
+                    }
                     blockDiffList.push({
                         id: `block_${index+1}`,
-                        line: lastLineOfBlock.oldNumber + "-" + lastLineOfBlock.newNumber,
+                        line,
                         unifiedDiff
                     })
                 })
