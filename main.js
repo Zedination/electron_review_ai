@@ -1,12 +1,17 @@
 // main.js
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut} = require('electron');
 const path = require('path');
+const Store = require('electron-store');
+
+
+const store = new Store();
+let mainWindow;
 
 const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile} = require("./git_utils");
 
 function createWindow() {
     // Tạo cửa sổ trình duyệt
-    const win = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 1600,
         height: 900,
         minWidth: 1333,
@@ -19,23 +24,52 @@ function createWindow() {
     });
 
     // Tải file HTML
-    win.loadFile('index.html');
+    mainWindow.loadFile('index.html');
 
     // Ngăn chặn mở cửa sổ mới khi nhấp vào liên kết
-    win.webContents.setWindowOpenHandler(() => {
+    mainWindow.webContents.setWindowOpenHandler(() => {
         return { action: 'deny' };
     });
 
+    // Đăng ký phím tắt Ctrl + Shift + I để mở DevTools
+    globalShortcut.register('Control+Shift+I', () => {
+        if (mainWindow) {
+            mainWindow.webContents.toggleDevTools(); // Bật/tắt DevTools
+        }
+    });
+
+    const menu = Menu.buildFromTemplate([
+        {
+            label: 'File',
+            submenu: [
+                {
+                    label: 'Open Local Repository',
+                    click: async () => {
+                        const folderPath = await openLocalRepository();
+                        if (folderPath) {
+                            // send folder path to vue logic
+                            store.set('currentRepository', folderPath);
+                            mainWindow.webContents.send('selected-folder', folderPath);
+                        }
+                    },
+                },
+                { role: 'quit' },
+            ],
+        },
+    ]);
+    Menu.setApplicationMenu(menu)
+
     ipcMain.handle("request-git-info", async () => {
-        return await getAllInfoGit('D:\\Source Code\\Node JS\\electron_review_ai');
+        if (!store.get('currentRepository')) return {validRepo: false};
+        return await getAllInfoGit(store.get('currentRepository'));
     });
 
     ipcMain.handle("request-changed-files", async (event, hash, diffType) => {
-        return await getChangedFilesByDiffHash(hash,'D:\\Source Code\\Node JS\\electron_review_ai', diffType);
+        return await getChangedFilesByDiffHash(hash,store.get('currentRepository'), diffType);
     });
 
     ipcMain.handle("request-diff-of-file", async (event, filePath, hashList, diffType) => {
-        return await getDiffTextByHashAndFile('D:\\Source Code\\Node JS\\electron_review_ai', filePath, hashList, diffType);
+        return await getDiffTextByHashAndFile(store.get('currentRepository'), filePath, hashList, diffType);
     });
 }
 
@@ -55,3 +89,22 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+async function openLocalRepository() {
+    // Hiển thị hộp thoại chọn folder
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory'], // Chỉ chọn folder
+    });
+
+    if (!result.canceled && result.filePaths.length > 0) {
+        const folderPath = result.filePaths[0];
+
+        // Lưu vào electron-store
+        store.set('localRepositoryPath', folderPath);
+
+        // Trả về đường dẫn folder
+        return folderPath;
+    }
+
+    return null;
+}

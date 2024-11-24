@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@primer/css": "^21.5.1",
+    "electron-store": "^8.2.0",
     "simple-git": "^3.27.0"
   },
   "name": "electron_review_ai",
@@ -21,7 +22,10 @@
       "target": [
         {
           "target": "portable",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ]
     }

@@ -19,10 +19,22 @@ async function getBranches(repoPath) {
 
 async function getAllInfoGit(repoPath) {
     const git = simpleGit(repoPath);
+    let isValidRepo = false;
+    try {
+        isValidRepo = await git.checkIsRepo();
+    } catch (error) {
+        console.error('Error checking repository:', error.message);
+    }
+    if (!repoPath || !isValidRepo) {
+        return {
+            validRepo: false
+        }
+    }
     const branches = await git.branch();
     const log = await git.log();
     const repoName = path.basename(repoPath);
     return {
+        validRepo: isValidRepo,
         repoName: repoName,
         branches: branches.all,
         currentBranch: branches.current,

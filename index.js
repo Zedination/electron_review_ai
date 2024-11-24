@@ -10,6 +10,7 @@ VueJs code
 const { createApp, ref, onMounted, onBeforeUnmount, computed, defineModel} = Vue;
 createApp({
     setup() {
+        const validRepo = ref(false);
         const repoName = ref('');
         const currentBranch = ref('');
         const branches = ref([]);
@@ -163,12 +164,23 @@ createApp({
         // Hàm để lấy thông tin Git qua Electron
         function fetchRepoInfo() {
             window.electronAPI.requestGitInfo().then((data) => {
+                if (!data.validRepo) {
+                    alert("The folder you selected is invalid.");
+                    return;
+                }
+                validRepo.value = data.validRepo;
                 repoName.value = data.repoName;
                 currentBranch.value = data.currentBranch;
                 branches.value = data.branches;
                 allLogs.value = data.logs;
             });
         }
+
+        // lắng nghe mỗi khi người dùng chọn folder local repository
+        window.electronAPI.onFolderSelected((folderPath) => {
+            console.log(folderPath);
+            fetchRepoInfo();
+        });
 
         function getGravatarUrl(email) {
             const hash = md5(email);
@@ -179,9 +191,11 @@ createApp({
             return selectedLogs.value.values().next().value;
         }
 
+        // load thông tin repo khi mới bắt đầu mở app
         fetchRepoInfo()
 
         return {
+            validRepo,
             repoName,
             currentBranch,
             branches,
