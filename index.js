@@ -135,11 +135,13 @@ createApp({
                         unifiedDiff = unifiedDiff + line.content;
                     })
                     const lastLineOfBlock = block.lines.at(-1);
-                    let line = lastLineOfBlock.oldNumber + "-" + lastLineOfBlock.newNumber;
+                    let line = '';
                     if (!lastLineOfBlock.oldNumber && lastLineOfBlock.newNumber) {
                         line = lastLineOfBlock.newNumber;
                     } else if (!lastLineOfBlock.newNumber && lastLineOfBlock.oldNumber) {
                         line = lastLineOfBlock.oldNumber;
+                    } else {
+                        line = lastLineOfBlock.oldNumber + "-" + lastLineOfBlock.newNumber;
                     }
                     blockDiffList.push({
                         id: `block_${index+1}`,

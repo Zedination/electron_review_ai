@@ -170,3 +170,141 @@
 .status-deleted {
     color: red;
 }
+
+
+
+/*css for intro page*/
+:root {
+    --background-light: #fff;
+    --text-light: #333;
+    --button-light: #f8f9fa;
+    --button-border-light: #ddd;
+    --protip-bg-light: #f9fcff;
+    --protip-border-light: #61dafb;
+
+    --background-dark: #181a23;
+    --text-dark: #fff;
+    --button-dark: #3c4048;
+    --button-border-dark: #555;
+    --protip-bg-dark: #333;
+    --protip-border-dark: #61dafb;
+}
+.intro_section {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    background-color: var(--background-light);
+    color: var(--text-light);
+    transition: all 0.3s ease-in-out;
+}
+
+.intro_section h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.intro_section p.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: 30px;
+}
+
+.intro_section .button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+    width: 300px;
+}
+
+.intro_section .button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 15px;
+    font-size: 1rem;
+    background-color: var(--button-light);
+    border: 1px solid var(--button-border-light);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.intro_section .button:hover {
+    background-color: var(--button-border-light);
+}
+
+.intro_section .button svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.intro_section .protip {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px dashed var(--protip-border-light);
+    border-radius: 8px;
+    background-color: var(--protip-bg-light);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.intro_section .protip span {
+    font-weight: bold;
+}
+
+.intro_section .background-decorations {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    opacity: 0.2;
+}
+
+.intro_section .toggle-mode {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: var(--button-light);
+    border: 1px solid var(--button-border-light);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.intro_section .toggle-mode:hover {
+    background-color: var(--button-border-light);
+}
+.intro_section.dark-mode {
+    background-color: var(--background-dark);
+    color: var(--text-dark);
+}
+
+.intro_section.dark-mode .button {
+    background-color: var(--button-dark);
+    border: 1px solid var(--button-border-dark);
+}
+
+.intro_section.dark-mode .button:hover {
+    background-color: var(--button-border-dark);
+}
+
+.intro_section.dark-mode .protip {
+    background-color: var(--protip-bg-dark);
+    border-color: var(--protip-border-dark);
+}
+
+.intro_section.dark-mode .toggle-mode {
+    background-color: var(--button-dark);
+    border: 1px solid var(--button-border-dark);
+    color: var(--text-dark);
+}

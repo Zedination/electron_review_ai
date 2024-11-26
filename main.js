@@ -38,6 +38,13 @@ function createWindow() {
         }
     });
 
+    // Clear electro-store
+    globalShortcut.register('Control+Shift+C', () => {
+        if (mainWindow) {
+            store.clear();
+        }
+    });
+
     const menu = Menu.buildFromTemplate([
         {
             label: 'File',

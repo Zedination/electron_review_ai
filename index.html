@@ -13,6 +13,35 @@
     <title>Document</title>
 </head>
 <body id="app">
+<div class="intro_section dark-mode" v-if="!validRepo && !repoName">
+    <h1>Let's get started!</h1>
+    <p class="subtitle">Add a repository to GitHub Desktop to start collaborating</p>
+
+    <div class="button-container">
+        <div class="button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h3.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H17a1 1 0 011 1v11a1 1 0 01-1 1h-4m-4 0a1 1 0 00-.707.293l-2.586 2.586A1 1 0 015 20V7m0 0H3" />
+            </svg>
+            Clone a repository from the Internet...
+        </div>
+        <div class="button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create a New Repository on your local drive...
+        </div>
+        <div class="button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v16m0-16h16M4 4h16" />
+            </svg>
+            Add an Existing Repository from your local drive...
+        </div>
+    </div>
+
+    <div class="protip">
+        <span>ProTip!</span> You can drag & drop an existing repository folder here to add it to Desktop
+    </div>
+</div>
 <div class="container-fluid header-component" v-if="validRepo">
     <div class="row border">
         <div class="header-box-item height-49 btn btn-invisible d-flex gap-2 align-items-center justify-content-between border">
