@@ -54,7 +54,7 @@
                 const firstTd = row.querySelector('td'); // Lấy thẻ td đầu tiên
                 return firstTd && firstTd.innerText.trim() === (blockInfo.line + '').replace('-', '\n');
             });
-            console.log(targetRow);
+            const targetRow = rowsByCondition.at(-1);
             const newRowHtml = `<tr>
                         <td class="toggle_button_comment" colspan="2">
                             <div class="toggle_content_wrapper">
