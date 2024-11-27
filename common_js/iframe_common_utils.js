@@ -1,5 +1,13 @@
 async function requestOpenAIServerCompatible(prompt, endpoint, targetElement) {
-    targetElement.innerHTML = '';
+    targetElement.innerHTML = ``;
+    let htmlPrefix = `
+    <style>
+        @import url('css/github-markdown.min.css');
+    </style>
+    <article class="markdown-body">`;
+
+    let htmlSuffix = `</article>`;
+
     let mdContent = '';
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");

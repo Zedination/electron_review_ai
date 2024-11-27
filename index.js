@@ -96,7 +96,7 @@ createApp({
                 let iframeEl = document.getElementById('isolated-frame');
                 let prompt = 'Luôn luôn trả lời bằng tiếng Việt. Tìm lỗi sai và đề xuất sửa lỗi dựa trên đoạn diff string mà tôi cung cấp dưới đây:\n';
                 const targetBlock = blockDiffList.find(value => value.id === receivedData.id);
-                prompt += targetBlock.unifiedDiff;
+                prompt += targetBlock.unifiedDiff + '\n';
                 iframeEl.contentWindow.postMessage({
                     endpoint,
                     prompt,
