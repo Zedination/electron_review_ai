@@ -23,6 +23,7 @@ createApp({
         const shadowContainerDiff = ref(null);
         const iframeRefDiff = ref(null);
         const searchCommitQuery = ref('');
+        const currentFolder = ref(null);
         let blockDiffList = [];
 
         const selectItem = (log, event) => {
@@ -163,25 +164,9 @@ createApp({
             iframeDocument.close()
         }
 
-        // Hàm để lấy thông tin Git qua Electron
-        function fetchRepoInfo() {
-            window.electronAPI.requestGitInfo().then((data) => {
-                if (!data.validRepo) {
-                    alert("The folder you selected is invalid.");
-                    return;
-                }
-                validRepo.value = data.validRepo;
-                repoName.value = data.repoName;
-                currentBranch.value = data.currentBranch;
-                branches.value = data.branches;
-                allLogs.value = data.logs;
-            });
-        }
-
         // lắng nghe mỗi khi người dùng chọn folder local repository
         window.electronAPI.onFolderSelected((folderPath) => {
-            console.log(folderPath);
-            fetchRepoInfo();
+            loadDataGit();
         });
 
         function getGravatarUrl(email) {
@@ -192,9 +177,55 @@ createApp({
         function getFirstLogSelected() {
             return selectedLogs.value.values().next().value;
         }
+        const loadDataGit = async () => {
+            console.log("==== start load data ====");
+            JsLoadingOverlay.show({
+                "overlayBackgroundColor": "#666666",
+                "overlayOpacity": "0.6",
+                "spinnerIcon": "ball-spin-fade",
+                "spinnerColor": "#13A0CC",
+                "spinnerSize": "3x",
+                "overlayIDName": "overlay",
+                "spinnerIDName": "spinner",
+                "offsetX": 0,
+                "offsetY": 0,
+                "containerID": null,
+                "lockScroll": false,
+                "overlayZIndex": 9998,
+                "spinnerZIndex": 9999
+            });
+            // kiểm tra xem store có lưu thông tin local repository gần nhất hay không?
+            currentFolder.value = await window.electronAPI.requestGetStoreByKey('currentFolder');
+            console.log(currentFolder.value);
 
-        // load thông tin repo khi mới bắt đầu mở app
-        fetchRepoInfo()
+            // nếu như trước đó app đã mở một folder rồi
+            if (currentFolder.value) {
+                // tiến hành kiểm tra xem folder đã mở trước đó có phải là một repo git hợp lệ không?
+                // nếu không hợp lệ, hiển thị một folder kết hợp với hiển thị giao diện như khi khi mở app lần đầu
+                let gitInfo = await window.electronAPI.requestGitInfo(currentFolder.value);
+                if (!gitInfo.validRepo) {
+                    // todo: tạm thời sử dụng alert, cần đổi sang dùng popup html
+                    alert(`The folder ${currentFolder.value} is not a valid Git repository!`);
+                    // xoá folder không hợp lệ khỏi store
+                    await window.electronAPI.requestSetStoreByKey('currentFolder', null);
+                    // sau khi xoá xong, hiện màn hình dành cho người dùng app lần đầu
+                    currentFolder.value = null;
+                } else {
+                    validRepo.value = gitInfo.validRepo;
+                    repoName.value = gitInfo.repoName;
+                    currentBranch.value = gitInfo.currentBranch;
+                    branches.value = gitInfo.branches;
+                    allLogs.value = gitInfo.logs;
+                    console.log(gitInfo.logs);
+                }
+                JsLoadingOverlay.hide();
+            } else {
+                // hiển thị giao diện dành cho người dùng lần đầu
+                currentFolder.value = null;
+                JsLoadingOverlay.hide();
+            }
+        }
+        onMounted(loadDataGit);
 
         return {
             validRepo,
@@ -209,6 +240,7 @@ createApp({
             shadowContainerDiff,
             iframeRefDiff,
             filteredLogs,
+            currentFolder,
 
             // function
             selectItem,

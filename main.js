@@ -54,8 +54,6 @@ function createWindow() {
                     click: async () => {
                         const folderPath = await openLocalRepository();
                         if (folderPath) {
-                            // send folder path to vue logic
-                            store.set('currentRepository', folderPath);
                             mainWindow.webContents.send('selected-folder', folderPath);
                         }
                     },
@@ -66,18 +64,32 @@ function createWindow() {
     ]);
     Menu.setApplicationMenu(menu)
 
-    ipcMain.handle("request-git-info", async () => {
-        if (!store.get('currentRepository')) return {validRepo: false};
-        return await getAllInfoGit(store.get('currentRepository'));
+    ipcMain.handle("request-git-info", async (event, repoPath) => {
+        return await getAllInfoGit(repoPath);
     });
 
     ipcMain.handle("request-changed-files", async (event, hash, diffType) => {
-        return await getChangedFilesByDiffHash(hash,store.get('currentRepository'), diffType);
+        return await getChangedFilesByDiffHash(hash,store.get('currentFolder'), diffType);
     });
 
     ipcMain.handle("request-diff-of-file", async (event, filePath, hashList, diffType) => {
-        return await getDiffTextByHashAndFile(store.get('currentRepository'), filePath, hashList, diffType);
+        return await getDiffTextByHashAndFile(store.get('currentFolder'), filePath, hashList, diffType);
     });
+
+    // handle get store
+    ipcMain.handle("request-get-store",  (event, key) => {
+        return store.get(key);
+    })
+
+    // handle set store
+    ipcMain.handle("request-set-store",  (event, key, value) => {
+        if (value) {
+            store.set(key, value);
+        } else {
+            store.delete(key);
+        }
+    })
+
 }
 
 app.whenReady().then(() => {
@@ -104,13 +116,9 @@ async function openLocalRepository() {
     });
 
     if (!result.canceled && result.filePaths.length > 0) {
-        const folderPath = result.filePaths[0];
-
-        // Lưu vào electron-store
-        store.set('localRepositoryPath', folderPath);
-
+        store.set('currentFolder', result.filePaths[0]);
         // Trả về đường dẫn folder
-        return folderPath;
+        return result.filePaths[0];
     }
 
     return null;

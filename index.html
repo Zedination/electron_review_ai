@@ -13,7 +13,7 @@
     <title>Document</title>
 </head>
 <body id="app">
-<div class="intro_section dark-mode" v-if="!validRepo && !repoName">
+<div class="intro_section dark-mode" v-if="!currentFolder || !validRepo">
     <h1>Let's get started!</h1>
     <p class="subtitle">Add a repository to GitHub Desktop to start collaborating</p>
 
@@ -42,7 +42,7 @@
         <span>ProTip!</span> You can drag & drop an existing repository folder here to add it to Desktop
     </div>
 </div>
-<div class="container-fluid header-component" v-if="validRepo">
+<div class="container-fluid header-component" v-if="currentFolder && validRepo">
     <div class="row border">
         <div class="header-box-item height-49 btn btn-invisible d-flex gap-2 align-items-center justify-content-between border">
             <svg aria-hidden="true" class="octicon icon" version="1.1" viewBox="0 0 16 16" tabindex="-1"
@@ -165,6 +165,7 @@
 </body>
 <script src="common_js/bootstrap.bundle.min.js"></script>
 <script src="common_js/vue.global.js"></script>
+<script src="common_js/js-loading-overlay.min.js"></script>
 <script src="common_js/md5.min.js"></script>
 <script src="common_js/common_utils.js"></script>
 <script type="text/javascript" src="common_js/diff2html-ui.min.js"></script>
