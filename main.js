@@ -2,6 +2,8 @@
 const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut} = require('electron');
 const path = require('path');
 const Store = require('electron-store');
+const { spawn, exec } = require('child_process');
+const os = require('os');
 
 
 const store = new Store();
@@ -19,7 +21,7 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
-            nodeIntegration: true,
+            nodeIntegration: false,
         },
     });
 
@@ -61,6 +63,36 @@ function createWindow() {
                 { role: 'quit' },
             ],
         },
+        {
+            label: 'Repository',
+            submenu: [
+                {
+                    label: 'Open in Command Prompt',
+                    click: async () => {
+                        const folderPath = store.get('currentFolder');
+                        if (folderPath) {
+                            openInCmd(folderPath);
+                        }
+                    }
+                },
+                {
+                    label: 'Open in Visual Studio Code',
+                    click: () => openInIDE('code'),
+                },
+                {
+                    label: 'Open in IntelliJ IDEA',
+                    click: () => openInIDE('idea'),
+                },
+                {
+                    label: 'Open in PyCharm',
+                    click: () => openInIDE('pycharm'),
+                },
+                {
+                    label: 'Open in WebStorm',
+                    click: () => openInIDE('webstorm'),
+                },
+            ]
+        }
     ]);
     Menu.setApplicationMenu(menu)
 
@@ -122,4 +154,84 @@ async function openLocalRepository() {
     }
 
     return null;
+}
+
+function openInCmd(folderPath) {
+    const platform = os.platform();
+    if (platform === 'win32') {
+        exec(`start cmd.exe /K "cd /d ${folderPath}"`, (error, stdout, stderr) => {
+
+        });
+    } else if (platform === 'darwin') {
+        spawn('open', ['-a', 'Terminal', folderPath]);
+    } else if (platform === 'linux') {
+        spawn('gnome-terminal', ['--working-directory', folderPath]);
+    } else {
+        throw new Error('Unsupported platform');
+    }
+}
+
+function openInIDE(ide) {
+    const folderPath = store.get('currentFolder');
+    if (folderPath) {
+        let command;
+        const platform = os.platform(); // Xác định hệ điều hành
+
+        switch (ide) {
+            case 'code':
+                if (platform === 'win32') {
+                    command = `code "${folderPath}"`;
+                } else if (platform === 'darwin') {
+                    command = `code "${folderPath}"`;
+                } else if (platform === 'linux') {
+                    command = `code "${folderPath}"`;
+                }
+                break;
+
+            case 'idea':
+                if (platform === 'win32') {
+                    command = `idea "${folderPath}"`;
+                } else if (platform === 'darwin') {
+                    command = `open -a "IntelliJ IDEA" "${folderPath}"`;
+                } else if (platform === 'linux') {
+                    command = `/opt/idea/bin/idea.sh "${folderPath}"`;
+                }
+                break;
+
+            case 'pycharm':
+                if (platform === 'win32') {
+                    command = `pycharm "${folderPath}"`;
+                } else if (platform === 'darwin') {
+                    command = `open -a "PyCharm" "${folderPath}"`;
+                } else if (platform === 'linux') {
+                    command = `/opt/pycharm/bin/pycharm.sh "${folderPath}"`;
+                }
+                break;
+
+            case 'webstorm':
+                if (platform === 'win32') {
+                    command = `webstorm "${folderPath}"`;
+                } else if (platform === 'darwin') {
+                    command = `open -a "WebStorm" "${folderPath}"`;
+                } else if (platform === 'linux') {
+                    command = `/opt/webstorm/bin/webstorm.sh "${folderPath}"`;
+                }
+                break;
+            default:
+                console.error('Unsupported IDE');
+                return;
+        }
+        // Thực thi lệnh
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error opening ${ide}: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`Stderr: ${stderr}`);
+            }
+            console.log(`Opened ${ide} successfully!`);
+        });
+
+    }
 }
