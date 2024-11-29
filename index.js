@@ -224,6 +224,7 @@ createApp({
                 currentFolder.value = null;
                 JsLoadingOverlay.hide();
             }
+            await window.electronAPI.requestUpdateToolbar();
         }
         onMounted(loadDataGit);
 

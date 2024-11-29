@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
     onFolderSelected: (callback) => ipcRenderer.on('selected-folder', (event, folderPath) => callback(folderPath)),
     requestGetStoreByKey: (key) => ipcRenderer.invoke('request-get-store', key),
     requestSetStoreByKey: (key) => ipcRenderer.invoke('request-set-store', key),
+    requestUpdateToolbar: () => ipcRenderer.invoke('request-update-toolbar'),
 })

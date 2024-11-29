@@ -4,11 +4,13 @@ const path = require('path');
 const Store = require('electron-store');
 const { spawn, exec } = require('child_process');
 const os = require('os');
-
+const isMac = process.platform === 'darwin';
 
 const store = new Store();
 let mainWindow;
-
+require('electron-reload')(path.join(__dirname), {
+    electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+});
 const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile} = require("./git_utils");
 
 function createWindow() {
@@ -33,68 +35,17 @@ function createWindow() {
         return { action: 'deny' };
     });
 
-    // Đăng ký phím tắt Ctrl + Shift + I để mở DevTools
-    globalShortcut.register('Control+Shift+I', () => {
-        if (mainWindow) {
-            mainWindow.webContents.toggleDevTools(); // Bật/tắt DevTools
-        }
-    });
-
     // Clear electro-store
     globalShortcut.register('Control+Shift+C', () => {
         if (mainWindow) {
             store.clear();
+            updateMenuToolBar();
         }
     });
 
-    const menu = Menu.buildFromTemplate([
-        {
-            label: 'File',
-            submenu: [
-                {
-                    label: 'Open Local Repository',
-                    click: async () => {
-                        const folderPath = await openLocalRepository();
-                        if (folderPath) {
-                            mainWindow.webContents.send('selected-folder', folderPath);
-                        }
-                    },
-                },
-                { role: 'quit' },
-            ],
-        },
-        {
-            label: 'Repository',
-            submenu: [
-                {
-                    label: 'Open in Command Prompt',
-                    click: async () => {
-                        const folderPath = store.get('currentFolder');
-                        if (folderPath) {
-                            openInCmd(folderPath);
-                        }
-                    }
-                },
-                {
-                    label: 'Open in Visual Studio Code',
-                    click: () => openInIDE('code'),
-                },
-                {
-                    label: 'Open in IntelliJ IDEA',
-                    click: () => openInIDE('idea'),
-                },
-                {
-                    label: 'Open in PyCharm',
-                    click: () => openInIDE('pycharm'),
-                },
-                {
-                    label: 'Open in WebStorm',
-                    click: () => openInIDE('webstorm'),
-                },
-            ]
-        }
-    ]);
-    Menu.setApplicationMenu(menu)
+    updateMenuToolBar();
+
+
 
     ipcMain.handle("request-git-info", async (event, repoPath) => {
         return await getAllInfoGit(repoPath);
@@ -122,6 +73,11 @@ function createWindow() {
         }
     })
 
+    // handle update menu toolbar
+    ipcMain.handle('request-update-toolbar', () => {
+        updateMenuToolBar();
+    })
+
 }
 
 app.whenReady().then(() => {
@@ -140,6 +96,91 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+function updateMenuToolBar() {
+    const menu = Menu.buildFromTemplate([
+        {
+            label: 'File',
+            submenu: [
+                {
+                    label: 'Open Local Repository',
+                    click: async () => {
+                        const folderPath = await openLocalRepository();
+                        if (folderPath) {
+                            mainWindow.webContents.send('selected-folder', folderPath);
+                        }
+                    },
+                },
+                { role: 'quit' },
+            ],
+        },
+        {
+            label: 'View',
+            submenu: [
+                {
+                    label: 'Reload',
+                    accelerator: isMac ? 'Cmd+R' : 'Ctrl+R', // Phím tắt cho reload
+                    click: () => mainWindow.webContents.reload(),
+                },
+                {
+                    label: 'Zoom In',
+                    accelerator: isMac ? 'Cmd+Plus' : 'Ctrl+Plus', // macOS: Cmd+, Windows/Linux: Ctrl+
+                    click: () => mainWindow.webContents.setZoomLevel(mainWindow.webContents.getZoomLevel() + 1),
+                },
+                {
+                    label: 'Zoom Out',
+                    accelerator: isMac ? 'Cmd+-' : 'Ctrl+-', // macOS: Cmd-, Windows/Linux: Ctrl-
+                    click: () => mainWindow.webContents.setZoomLevel(mainWindow.webContents.getZoomLevel() - 1),
+                },
+                {
+                    label: 'Toggle DevTools',
+                    accelerator: isMac ? 'Cmd+Shift+I' : 'Ctrl+Shift+I', // macOS: Cmd-, Windows/Linux: Ctrl-
+                    click: () => {
+                        if (mainWindow) {
+                            mainWindow.webContents.toggleDevTools(); // Bật/tắt DevTools
+                        }
+                    },
+                },
+            ],
+        },
+        {
+            label: 'Repository',
+            submenu: [
+                {
+                    label: 'Open in Command Prompt',
+                    enabled: store.get('currentFolder') !== undefined && store.get('currentFolder') !== null,
+                    click: async () => {
+                        const folderPath = store.get('currentFolder');
+                        if (folderPath) {
+                            openInCmd(folderPath);
+                        }
+                    }
+                },
+                {
+                    label: 'Open in Visual Studio Code',
+                    enabled: store.get('currentFolder') !== undefined && store.get('currentFolder') !== null,
+                    click: () => openInIDE('code'),
+                },
+                {
+                    label: 'Open in IntelliJ IDEA',
+                    enabled: store.get('currentFolder') !== undefined && store.get('currentFolder') !== null,
+                    click: () => openInIDE('idea'),
+                },
+                {
+                    label: 'Open in PyCharm',
+                    enabled: store.get('currentFolder') !== undefined && store.get('currentFolder') !== null,
+                    click: () => openInIDE('pycharm'),
+                },
+                {
+                    label: 'Open in WebStorm',
+                    enabled: store.get('currentFolder') !== undefined && store.get('currentFolder') !== null,
+                    click: () => openInIDE('webstorm'),
+                },
+            ]
+        }
+    ]);
+    Menu.setApplicationMenu(menu)
+}
 
 async function openLocalRepository() {
     // Hiển thị hộp thoại chọn folder
