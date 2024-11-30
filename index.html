@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="en" data-color-mode="dark" data-dark-theme="dark">
-<!--<html>-->
+<!--<html lang="en" data-color-mode="dark" data-dark-theme="dark">-->
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -13,33 +13,34 @@
     <title>Document</title>
 </head>
 <body id="app">
-<div class="intro_section dark-mode" v-if="!currentFolder || !validRepo">
+<div id="drop-zone" class="intro_section d-flex flex-justify-center" v-if="!currentFolder || !validRepo">
     <h1>Let's get started!</h1>
-    <p class="subtitle">Add a repository to GitHub Desktop to start collaborating</p>
+    <p>Add a local repository to DRAI to start diff & review source</p>
 
-    <div class="button-container">
-        <div class="button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h3.586a1 1 0 01.707.293l1.414 1.414a1 1 0 00.707.293H17a1 1 0 011 1v11a1 1 0 01-1 1h-4m-4 0a1 1 0 00-.707.293l-2.586 2.586A1 1 0 015 20V7m0 0H3" />
-            </svg>
-            Clone a repository from the Internet...
+    <div class="content-arial flex-column d-flex">
+        <button class="btn btn-block" type="button" @click="selectFolderFromHtml">
+            <svg style="vertical-align: text-bottom;" class="icon octicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M2 4.75C2 3.784 2.784 3 3.75 3h4.971c.58 0 1.12.286 1.447.765l1.404 2.063a.25.25 0 0 0 .207.11h6.224c.966 0 1.75.783 1.75 1.75v.117H5.408a.848.848 0 0 0 0 1.695h15.484a1 1 0 0 1 .995 1.102L21 19.25c-.106 1.05-.784 1.75-1.75 1.75H3.75A1.75 1.75 0 0 1 2 19.25V4.75Z"></path></svg>
+            <span  style="vertical-align: text-bottom;" > Open local repository</span>
+        </button>
+    </div>
+    <div class="recent-project flex-column d-flex mt-3">
+        <h2>Recent</h2>
+        <div class="d-flex">
+            <a class="mr-5" href="#">Repository</a>
+            <p class="flex-auto">Path/to/repository</p>
         </div>
-        <div class="button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Create a New Repository on your local drive...
+        <div class="d-flex">
+            <a class="mr-5" href="#">Repository123</a>
+            <p class="flex-auto">Path/to/repository</p>
         </div>
-        <div class="button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v16m0-16h16M4 4h16" />
-            </svg>
-            Add an Existing Repository from your local drive...
+        <div class="d-flex">
+            <a class="mr-5" href="#">Repository234</a>
+            <p class="flex-auto">Path/to/repository</p>
         </div>
     </div>
 
-    <div class="protip">
-        <span>ProTip!</span> You can drag & drop an existing repository folder here to add it to Desktop
+    <div class="protip border border-dashed">
+        <span>ProTip!</span> You can drag & drop an existing repository folder here to add it to DRAI
     </div>
 </div>
 <div class="container-fluid header-component" v-if="currentFolder && validRepo">
@@ -165,7 +166,8 @@
 </div>
 </body>
 <script src="common_js/bootstrap.bundle.min.js"></script>
-<script src="common_js/vue.global.js"></script>
+<!--<script src="common_js/vue.global.js"></script>-->
+<script src="common_js/vue.global.prod.min.js"></script>
 <script src="common_js/js-loading-overlay.min.js"></script>
 <script src="common_js/md5.min.js"></script>
 <script src="common_js/common_utils.js"></script>

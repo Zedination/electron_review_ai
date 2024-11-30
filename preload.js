@@ -1,7 +1,8 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require("electron");
+const { webUtils } = require('electron');
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('Preload script loaded');
+    initDragDrop();
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {
@@ -12,4 +13,31 @@ contextBridge.exposeInMainWorld("electronAPI", {
     requestGetStoreByKey: (key) => ipcRenderer.invoke('request-get-store', key),
     requestSetStoreByKey: (key) => ipcRenderer.invoke('request-set-store', key),
     requestUpdateToolbar: () => ipcRenderer.invoke('request-update-toolbar'),
+    sendDialogSelectFolder: () => ipcRenderer.send('folder-selected-from-html'),
 })
+
+
+function initDragDrop() {
+    const dropZone = document.getElementById('drop-zone');
+
+//Ngăn hành vi mặc định của trình duyệt khi kéo thả
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, event => {
+            event.preventDefault();
+            event.stopPropagation();
+        });
+    });
+
+// Hiệu ứng khi kéo vào vùng thả
+    dropZone.addEventListener('dragenter', () => {
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+    });
+
+// Xử lý sự kiện thả
+    dropZone.addEventListener('drop', event => {
+        const filePath = webUtils.getPathForFile(event.dataTransfer.files[0]);
+        ipcRenderer.send('folder-selected-from-drop', filePath);
+    });
+}

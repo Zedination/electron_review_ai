@@ -12,6 +12,7 @@ require('electron-reload')(path.join(__dirname), {
     electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
 });
 const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile} = require("./git_utils");
+const fs = require("node:fs");
 
 function createWindow() {
     // Tạo cửa sổ trình duyệt
@@ -24,6 +25,7 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false,
+            enableRemoteModule: false,
         },
     });
 
@@ -45,6 +47,19 @@ function createWindow() {
 
     updateMenuToolBar();
 
+    ipcMain.on("folder-selected-from-drop", async (event, filePath) => {
+        if (isDirectory(filePath)) {
+            store.set('currentFolder', filePath);
+            mainWindow.webContents.send('selected-folder', filePath);
+        }
+    });
+
+    ipcMain.on("folder-selected-from-html", async () => {
+        const folderPath = await openLocalRepository();
+        if (folderPath) {
+            mainWindow.webContents.send('selected-folder', folderPath);
+        }
+    })
 
 
     ipcMain.handle("request-git-info", async (event, repoPath) => {
@@ -104,11 +119,19 @@ function updateMenuToolBar() {
             submenu: [
                 {
                     label: 'Open Local Repository',
+                    accelerator: isMac ? 'Cmd+O' : 'Ctrl+O',
                     click: async () => {
                         const folderPath = await openLocalRepository();
                         if (folderPath) {
                             mainWindow.webContents.send('selected-folder', folderPath);
                         }
+                    },
+                },
+                {
+                    label: 'Settings...',
+                    accelerator: isMac ? 'Cmd+Alt+S' : 'Ctrl+Alt+S',
+                    click: async () => {
+                        console.log("Settings");
                     },
                 },
                 { role: 'quit' },
@@ -274,5 +297,13 @@ function openInIDE(ide) {
             console.log(`Opened ${ide} successfully!`);
         });
 
+    }
+}
+
+function isDirectory(filePath) {
+    try {
+        return fs.statSync(filePath).isDirectory();
+    } catch (err) {
+        return false;
     }
 }

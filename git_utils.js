@@ -18,6 +18,7 @@ async function getBranches(repoPath) {
 }
 
 async function getAllInfoGit(repoPath) {
+    // await sleep(2000);
     const git = simpleGit(repoPath);
     let isValidRepo = false;
     try {
@@ -117,6 +118,10 @@ async function getDiffTextByHashAndFile(repoPath, filePath, hashList, diffType) 
             break;
     }
     return diffText;
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 

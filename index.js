@@ -166,6 +166,9 @@ createApp({
 
         // lắng nghe mỗi khi người dùng chọn folder local repository
         window.electronAPI.onFolderSelected((folderPath) => {
+            selectedLogs.value = new Set();
+            selectedFile.value = null;
+            changedFiles.value = [];
             loadDataGit();
         });
 
@@ -176,6 +179,10 @@ createApp({
 
         function getFirstLogSelected() {
             return selectedLogs.value.values().next().value;
+        }
+
+        const selectFolderFromHtml = () => {
+             window.electronAPI.sendDialogSelectFolder();
         }
         const loadDataGit = async () => {
             console.log("==== start load data ====");
@@ -226,7 +233,9 @@ createApp({
             }
             await window.electronAPI.requestUpdateToolbar();
         }
-        onMounted(loadDataGit);
+        onMounted(() => {
+            loadDataGit();
+        });
 
         return {
             validRepo,
@@ -248,7 +257,8 @@ createApp({
             selectedFileItem,
             getFirstLogSelected,
             getGravatarUrl,
-            updateSearchQuery
+            updateSearchQuery,
+            selectFolderFromHtml,
         }
     },
 }).mount('#app');
