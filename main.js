@@ -131,7 +131,7 @@ function updateMenuToolBar() {
                     label: 'Settings...',
                     accelerator: isMac ? 'Cmd+Alt+S' : 'Ctrl+Alt+S',
                     click: async () => {
-                        console.log("Settings");
+                        mainWindow.webContents.send('open-settings');
                     },
                 },
                 { role: 'quit' },

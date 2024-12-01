@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
 VueJs code
 */
 
-const { createApp, ref, onMounted, onBeforeUnmount, computed, defineModel} = Vue;
+const { createApp, ref, onMounted, onBeforeUnmount, computed, defineModel, watch } = Vue;
 createApp({
     setup() {
         const validRepo = ref(false);
@@ -24,7 +24,35 @@ createApp({
         const iframeRefDiff = ref(null);
         const searchCommitQuery = ref('');
         const currentFolder = ref(null);
+        const theme = ref("system");
         let blockDiffList = [];
+
+        // set theme khi khởi động
+        window.electronAPI.requestGetStoreByKey('theme').then((data) => {
+            console.log(data);
+            if (!data) {
+                theme.value = 'system';
+            } else {
+                theme.value = data;
+            }
+            const html = document.querySelector('html');
+            if (theme.value === 'light') {
+                html.setAttribute('data-color-mode', 'light');
+                html.setAttribute('data-dark-theme', 'light');
+            } else if (theme.value === 'dark') {
+                html.setAttribute('data-color-mode', 'dark');
+                html.setAttribute('data-dark-theme', 'dark');
+            } else {
+                const isDarkModeOs = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (isDarkModeOs) {
+                    html.setAttribute('data-color-mode', 'dark');
+                    html.setAttribute('data-dark-theme', 'dark');
+                } else {
+                    html.setAttribute('data-color-mode', 'light');
+                    html.setAttribute('data-dark-theme', 'light');
+                }
+            }
+        })
 
         const selectItem = (log, event) => {
 
@@ -172,6 +200,11 @@ createApp({
             loadDataGit();
         });
 
+        // Khi người dùng mở Settings
+        window.electronAPI.onSettingsDialogOpen(() => {
+            document.getElementById("settingsDialog").showModal();
+        })
+
         function getGravatarUrl(email) {
             const hash = md5(email);
             return `https://www.gravatar.com/avatar/${hash}`;
@@ -233,6 +266,39 @@ createApp({
             }
             await window.electronAPI.requestUpdateToolbar();
         }
+        const openDialog = () => {
+            document.getElementById("settingsDialog").showModal();
+        }
+        const closeDialog = () => {
+            document.getElementById("settingsDialog").close();
+        }
+
+        const changeTheme = async theme => {
+            theme.value = theme;
+            await window.electronAPI.requestSetStoreByKey('theme', theme);
+        }
+
+        watch(theme, (newValue) => {
+            window.electronAPI.requestSetStoreByKey('theme', newValue);
+            const html = document.querySelector('html');
+            if (newValue === 'light') {
+                html.setAttribute('data-color-mode', 'light');
+                html.setAttribute('data-dark-theme', 'light');
+            } else if (newValue === 'dark') {
+                html.setAttribute('data-color-mode', 'dark');
+                html.setAttribute('data-dark-theme', 'dark');
+            } else {
+                const isDarkModeOs = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (isDarkModeOs) {
+                    html.setAttribute('data-color-mode', 'dark');
+                    html.setAttribute('data-dark-theme', 'dark');
+                } else {
+                    html.setAttribute('data-color-mode', 'light');
+                    html.setAttribute('data-dark-theme', 'light');
+                }
+            }
+        });
+
         onMounted(() => {
             loadDataGit();
         });
@@ -251,6 +317,7 @@ createApp({
             iframeRefDiff,
             filteredLogs,
             currentFolder,
+            theme,
 
             // function
             selectItem,
@@ -259,6 +326,9 @@ createApp({
             getGravatarUrl,
             updateSearchQuery,
             selectFolderFromHtml,
+            openDialog,
+            closeDialog,
+            changeTheme,
         }
     },
 }).mount('#app');

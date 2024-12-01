@@ -11,9 +11,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     requestDiffTextByFilePath: (filePath, hashList, diffType) => ipcRenderer.invoke('request-diff-of-file', filePath, hashList, diffType),
     onFolderSelected: (callback) => ipcRenderer.on('selected-folder', (event, folderPath) => callback(folderPath)),
     requestGetStoreByKey: (key) => ipcRenderer.invoke('request-get-store', key),
-    requestSetStoreByKey: (key) => ipcRenderer.invoke('request-set-store', key),
+    requestSetStoreByKey: (key, value) => ipcRenderer.invoke('request-set-store', key, value),
     requestUpdateToolbar: () => ipcRenderer.invoke('request-update-toolbar'),
     sendDialogSelectFolder: () => ipcRenderer.send('folder-selected-from-html'),
+    onSettingsDialogOpen: (callback) => ipcRenderer.on('open-settings', (event) => callback()),
 })
 
 
