@@ -8,9 +8,9 @@ const isMac = process.platform === 'darwin';
 
 const store = new Store();
 let mainWindow;
-require('electron-reload')(path.join(__dirname), {
-    electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
-});
+// require('electron-reload')(path.join(__dirname), {
+//     electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+// });
 const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile} = require("./git_utils");
 const fs = require("node:fs");
 
@@ -103,6 +103,16 @@ app.whenReady().then(() => {
             createWindow();
         }
     });
+
+    // Xử lý khi khởi động ứng dụng, mở folder từ context menu
+    const args = process.argv;
+
+    if (args && args.length  > 1 && !args[1].includes('electron.exe')) {
+        const folderPath = args[1];
+        if (folderPath && isDirectory(folderPath)) {
+            mainWindow.webContents.send('selected-folder', folderPath);
+        }
+    }
 });
 
 app.on('window-all-closed', () => {

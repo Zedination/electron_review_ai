@@ -51,7 +51,8 @@
 
  /*Thanh cuộn cho trình duyệt WebKit (Chrome, Safari)*/
 *::-webkit-scrollbar {
-    width: 6px; /* Độ rộng của thanh cuộn */
+    width: 6px;
+    height: 6px;/* Độ rộng của thanh cuộn */
 }
 
 *::-webkit-scrollbar-track {

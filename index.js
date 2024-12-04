@@ -297,6 +297,7 @@ createApp({
                     html.setAttribute('data-dark-theme', 'light');
                 }
             }
+            generateHtmlFromDiffText(diffText.value);
         });
 
         onMounted(() => {

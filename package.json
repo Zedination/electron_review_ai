@@ -2,6 +2,7 @@
   "dependencies": {
     "@primer/css": "^21.5.1",
     "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.9",
     "simple-git": "^3.27.0"
   },
   "name": "electron_review_ai",
@@ -14,21 +15,26 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder",
+    "build-portable": "electron-builder --win portable"
   },
   "build": {
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "allowElevation": true,
+      "installerHeaderIcon": "icon/diff_source_icon_minimalistic.png",
+      "include": "build/installer.nsh"
+    },
     "appId": "dev.zedination.drai",
     "productName": "DRAI",
+    "copyright": "Copyright © 2024",
     "win": {
-      "target": [
-        {
-          "target": "portable",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
-        }
-      ]
+      "target": "nsis",
+      "icon": "icon/diff_source_icon_minimalistic.png"
     }
   },
   "keywords": [],
