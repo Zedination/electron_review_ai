@@ -106,10 +106,15 @@ app.whenReady().then(() => {
 
     // Xử lý khi khởi động ứng dụng, mở folder từ context menu
     const args = process.argv;
-
-    if (args && args.length  > 1 && !args[1].includes('electron.exe')) {
+    // fs.writeFile('D:\\Source Code\\Node JS\\setting2.txt', args.join('\n'), err => {});
+    if (args && args.length > 1 && !args[1].includes('electron.exe')) {
         const folderPath = args[1];
+        // dialog.showMessageBox(mainWindow, {type: 'info',
+        //     title: 'Thông báo',
+        //     message: args[1],
+        //     buttons: ['OK']});
         if (folderPath && isDirectory(folderPath)) {
+            store.set('currentFolder', folderPath);
             mainWindow.webContents.send('selected-folder', folderPath);
         }
     }
@@ -312,7 +317,7 @@ function openInIDE(ide) {
 
 function isDirectory(filePath) {
     try {
-        return fs.statSync(filePath).isDirectory();
+        return fs.existsSync(filePath) && fs.statSync(filePath).isDirectory();
     } catch (err) {
         return false;
     }
