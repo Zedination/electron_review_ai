@@ -122,7 +122,10 @@ app.whenReady().then(() => {
 
     // Kiểm tra cập nhật sau khi ứng dụng sẵn sàng
     mainWindow.webContents.once('did-finish-load', () => {
-        checkForUpdates();
+        // test update version with sleep 5000ms
+        sleep(5000).then(() => {
+            checkForUpdates();
+        })
     });
 });
 
@@ -390,4 +393,8 @@ function checkForUpdates() {
         console.error('Error during update:', error);
         dialog.showErrorBox('Update Error', error.message || 'An unknown error occurred.');
     });
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
