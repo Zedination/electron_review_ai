@@ -4,6 +4,7 @@ const path = require('path');
 const Store = require('electron-store');
 const { spawn, exec } = require('child_process');
 const os = require('os');
+const { autoUpdater } = require('electron-updater');
 const isMac = process.platform === 'darwin';
 
 const store = new Store();
@@ -107,7 +108,7 @@ app.whenReady().then(() => {
     // Xử lý khi khởi động ứng dụng, mở folder từ context menu
     const args = process.argv;
     // fs.writeFile('D:\\Source Code\\Node JS\\setting2.txt', args.join('\n'), err => {});
-    if (args && args.length > 1 && !args[1].includes('electron.exe')) {
+    if (args && args.length > 1 && !args[0].includes('electron.exe')) {
         const folderPath = args[1];
         // dialog.showMessageBox(mainWindow, {type: 'info',
         //     title: 'Thông báo',
@@ -118,6 +119,11 @@ app.whenReady().then(() => {
             mainWindow.webContents.send('selected-folder', folderPath);
         }
     }
+
+    // Kiểm tra cập nhật sau khi ứng dụng sẵn sàng
+    mainWindow.webContents.once('did-finish-load', () => {
+        checkForUpdates();
+    });
 });
 
 app.on('window-all-closed', () => {
@@ -321,4 +327,67 @@ function isDirectory(filePath) {
     } catch (err) {
         return false;
     }
+}
+
+function checkForUpdates() {
+    autoUpdater.checkForUpdates();
+
+    // Khi có bản cập nhật mới
+    autoUpdater.on('update-available', (info) => {
+        console.log('Update available:', info);
+
+        // Hiển thị dialog hỏi người dùng
+        const choice = dialog.showMessageBoxSync(mainWindow, {
+            type: 'info',
+            buttons: ['OK', 'Not Now'], // Các nút trong dialog
+            defaultId: 0, // Nút mặc định (OK)
+            cancelId: 1, // Nút hủy (Not Now)
+            title: 'Update Available',
+            message: 'A new version is available. Would you like to update now?',
+            detail: `Version ${info.version} is available for download.`,
+        });
+
+        // Xử lý lựa chọn của người dùng
+        if (choice === 0) {
+            // Nếu người dùng chọn "OK"
+            autoUpdater.downloadUpdate();
+        } else {
+            // Người dùng chọn "Not Now"
+            console.log('User chose not to update.');
+        }
+    });
+
+    // Khi bản cập nhật đã được tải xuống
+    autoUpdater.on('update-downloaded', (info) => {
+        console.log('Update downloaded:', info);
+
+        // Hiển thị dialog yêu cầu cài đặt
+        const installChoice = dialog.showMessageBoxSync(mainWindow, {
+            type: 'info',
+            buttons: ['Install and Restart', 'Later'],
+            defaultId: 0,
+            cancelId: 1,
+            title: 'Update Ready',
+            message: 'The update has been downloaded. Would you like to install it now?',
+            detail: 'The application will restart to apply the update.',
+        });
+
+        if (installChoice === 0) {
+            // Cài đặt và khởi động lại ứng dụng
+            autoUpdater.quitAndInstall();
+        } else {
+            console.log('User chose to install the update later.');
+        }
+    });
+
+    // Khi không có bản cập nhật mới
+    autoUpdater.on('update-not-available', () => {
+        console.log('No updates available.');
+    });
+
+    // Xử lý lỗi trong quá trình cập nhật
+    autoUpdater.on('error', (error) => {
+        console.error('Error during update:', error);
+        dialog.showErrorBox('Update Error', error.message || 'An unknown error occurred.');
+    });
 }

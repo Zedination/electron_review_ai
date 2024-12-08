@@ -6,7 +6,7 @@
     "simple-git": "^3.27.0"
   },
   "name": "electron_review_ai",
-  "version": "1.0.0",
+  "version": "1.0.0-beta",
   "main": "main.js",
   "devDependencies": {
     "electron": "^33.2.0",
@@ -17,7 +17,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "build": "electron-builder",
-    "build-portable": "electron-builder --win portable"
+    "build-portable": "electron-builder --win portable",
+    "build-push-local": "electron-builder --publish always"
   },
   "build": {
     "nsis": {
@@ -35,7 +36,15 @@
     "win": {
       "target": "nsis",
       "icon": "icon/diff_source_icon_minimalistic.png"
-    }
+    },
+    "publish": [
+      {
+        "provider": "s3",
+        "bucket": "test-electron-publish",
+        "endpoint": "http://127.0.0.1:9000",
+        "region": "us-east-1"
+      }
+    ]
   },
   "keywords": [],
   "author": "Zedination",
