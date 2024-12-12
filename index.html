@@ -291,7 +291,7 @@
 </div>
 
 <div class="update-progress" v-if="updaterProgress" :class="{dark: theme === 'dark'}" id="update-progress-el">
-    <h6 class="text-center">Download progress: {{updaterProgress.percent}}% / Download speed: {{Math.round(updaterProgress.bytesPerSecond / 1024)}} Mbps</h6>
+    <h6 class="text-center">Download progress: {{Math.round(updaterProgress.percent)}}% / Download speed: {{Math.round(updaterProgress.bytesPerSecond / 1000 / 1000)}} Mbps</h6>
     <div class="progress-bar mb-2" :style="{width: updaterProgress.percent + '%'}">
     </div>
 </div>

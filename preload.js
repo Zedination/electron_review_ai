@@ -3,6 +3,16 @@ const { contextBridge, ipcRenderer } = require("electron");
 const { webUtils } = require('electron');
 window.addEventListener('DOMContentLoaded', () => {
     initDragDrop();
+
+    // lười nên dùng luôn DOM thay vì Vue API
+    document.getElementById("FixedButtonUpdateInpro").addEventListener("click", function () {
+        const progressElement = document.getElementById("update-progress-el");
+        if (progressElement.style.display === "none" || progressElement.style.display === "") {
+            progressElement.style.display = "block";
+        } else {
+            progressElement.style.display = "none";
+        }
+    });
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {

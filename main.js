@@ -405,7 +405,7 @@ function checkForUpdates() {
     // Xử lý lỗi trong quá trình cập nhật
     autoUpdater.on('error', (error) => {
         console.error('Error during update:', error);
-        // dialog.showErrorBox('Update Error', error.message || 'An unknown error occurred.');
+        dialog.showErrorBox('Update Error', error.message || 'An unknown error occurred.');
         mainWindow.webContents.send('complete-download-update');
     });
 }
