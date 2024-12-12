@@ -18,7 +18,8 @@
     "start": "electron .",
     "build": "electron-builder",
     "build-portable": "electron-builder --win portable",
-    "build-push-local": "electron-builder --publish always"
+    "build-push-local": "electron-builder --publish always",
+    "release": "electron-builder --publish always"
   },
   "build": {
     "nsis": {
@@ -39,10 +40,9 @@
     },
     "publish": [
       {
-        "provider": "s3",
-        "bucket": "test-electron-publish",
-        "endpoint": "http://127.0.0.1:9000",
-        "region": "us-east-1"
+        "provider": "github",
+        "owner": "Zedination",
+        "repo": "electron_review_ai"
       }
     ]
   },
