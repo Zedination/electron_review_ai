@@ -25,6 +25,7 @@ createApp({
         const searchCommitQuery = ref('');
         const currentFolder = ref(null);
         const theme = ref("system");
+        const updaterProgress = ref(null);
         let blockDiffList = [];
 
         // set theme khi khởi động
@@ -205,6 +206,17 @@ createApp({
             document.getElementById("settingsDialog").showModal();
         })
 
+        // Khi đang download update
+        window.electronAPI.onDownloadUpdate((progress) => {
+            console.log(progress);
+            updaterProgress.value = progress;
+        })
+
+        // Khi download xong (hoặc lỗi trong quá trình download)
+        window.electronAPI.onCompleteDownloadUpdate(() => {
+            updaterProgress.value = null;
+        })
+
         function getGravatarUrl(email) {
             const hash = md5(email);
             return `https://www.gravatar.com/avatar/${hash}`;
@@ -319,6 +331,7 @@ createApp({
             filteredLogs,
             currentFolder,
             theme,
+            updaterProgress,
 
             // function
             selectItem,

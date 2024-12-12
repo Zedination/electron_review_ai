@@ -1,5 +1,5 @@
 // main.js
-const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut} = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, net} = require('electron');
 const path = require('path');
 const Store = require('electron-store');
 const { spawn, exec } = require('child_process');
@@ -122,8 +122,7 @@ app.whenReady().then(() => {
 
     // Kiểm tra cập nhật sau khi ứng dụng sẵn sàng
     mainWindow.webContents.once('did-finish-load', () => {
-        // test update version with sleep 5000ms
-        sleep(5000).then(() => {
+        sleep(0).then(() => {
             checkForUpdates();
         })
     });
@@ -333,6 +332,10 @@ function isDirectory(filePath) {
 }
 
 function checkForUpdates() {
+
+    // kiểm tra internet, nếu không có internet thì ko check update
+    if (!net.isOnline()) return;
+    
     autoUpdater.checkForUpdates();
 
     // Khi có bản cập nhật mới
@@ -360,9 +363,20 @@ function checkForUpdates() {
         }
     });
 
+    // Khi đang tải update
+    autoUpdater.on('download-progress', (progress) => {
+        console.log(`Download speed: ${progress.bytesPerSecond} Bps`);
+        console.log(`Downloaded: ${progress.percent}%`);
+        console.log(`Total: ${progress.total} bytes`);
+
+        // Gửi tiến trình đến cửa sổ loading
+        mainWindow.webContents.send('download-progress', progress);
+    });
+
     // Khi bản cập nhật đã được tải xuống
     autoUpdater.on('update-downloaded', (info) => {
         console.log('Update downloaded:', info);
+        mainWindow.webContents.send('complete-download-update');
 
         // Hiển thị dialog yêu cầu cài đặt
         const installChoice = dialog.showMessageBoxSync(mainWindow, {
@@ -391,7 +405,8 @@ function checkForUpdates() {
     // Xử lý lỗi trong quá trình cập nhật
     autoUpdater.on('error', (error) => {
         console.error('Error during update:', error);
-        dialog.showErrorBox('Update Error', error.message || 'An unknown error occurred.');
+        // dialog.showErrorBox('Update Error', error.message || 'An unknown error occurred.');
+        mainWindow.webContents.send('complete-download-update');
     });
 }
 

@@ -10,6 +10,7 @@
     <link href="css/bootstrap-grid.min.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="icon/diff_source_icon_minimalistic.png">
     <link href="css/primer.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/loading-bar.min.css">
     <link rel="stylesheet" href="css/style.css">
     <title>Document</title>
 </head>
@@ -282,6 +283,19 @@
         </fieldset>
     </form>
 </dialog>
+<div id="FixedButtonUpdateInpro" v-if="updaterProgress" class="circle-update-loading">
+    <div
+            data-preset="bubble"
+            class="ldBar label-center"
+            :data-value="updaterProgress.percent"></div>
+</div>
+
+<div class="update-progress" v-if="updaterProgress" :class="{dark: theme === 'dark'}" id="update-progress-el">
+    <h6 class="text-center">Download progress: {{updaterProgress.percent}}% / Download speed: {{Math.round(updaterProgress.bytesPerSecond / 1024)}} Mbps</h6>
+    <div class="progress-bar mb-2" :style="{width: updaterProgress.percent + '%'}">
+    </div>
+</div>
+
 </body>
 <script src="common_js/bootstrap.bundle.min.js"></script>
 <script src="common_js/vue.global.prod.min.js"></script>
@@ -290,6 +304,7 @@
 <script src="common_js/common_utils.js"></script>
 <script type="text/javascript" src="common_js/diff2html-ui.min.js"></script>
 <script type="text/javascript" src="common_js/diff2html.min.js"></script>
+<script src="common_js/loading-bar.min.js"></script>
 <script src="index.js"></script>
 <script>
 

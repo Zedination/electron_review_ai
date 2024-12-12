@@ -447,3 +447,46 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
     bottom: 0;
     height: 60px;
 }
+
+.circle-update-loading {
+    position: fixed; /* Cố định vị trí */
+    bottom: 20px; /* Cách cạnh dưới 20px */
+    right: 20px; /* Cách cạnh phải 20px */
+    width: 60px; /* Chiều rộng hình tròn */
+    height: 60px; /* Chiều cao hình tròn */
+    /*background-color: #2ea44f;*/ /* Màu nền */
+    border-radius: 50%; /* Tạo hình tròn */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Tạo bóng cho hình tròn */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white; /* Màu chữ (nếu cần thêm nội dung) */
+    font-size: 16px; /* Kích thước chữ */
+    cursor: pointer; /* Con trỏ khi hover */
+}
+
+.circle:hover {
+    background-color: #22863a; /* Đổi màu khi hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Tăng hiệu ứng bóng */
+}
+
+.update-progress {
+    /*box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);*/
+    border-radius: 10px;
+    position: fixed; /* Cố định vị trí */
+    bottom: 30px;
+    right: 80px;
+    width: calc(100vw - 120px);
+}
+
+.update-progress.dark {
+    /*box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);*/
+}
+
+.update-progress .progress-bar {
+    height: 10px;
+    background-color: #2ea44f; /* Màu xanh lá */
+    transition: width 0.2s ease-in-out; /* Hiệu ứng chuyển động */
+    border-radius: 15px;
+}
+

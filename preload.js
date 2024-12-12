@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     requestUpdateToolbar: () => ipcRenderer.invoke('request-update-toolbar'),
     sendDialogSelectFolder: () => ipcRenderer.send('folder-selected-from-html'),
     onSettingsDialogOpen: (callback) => ipcRenderer.on('open-settings', (event) => callback()),
+    onDownloadUpdate: (callback) => ipcRenderer.on('download-progress', (event, progress) => callback(progress)),
+    onCompleteDownloadUpdate: (callback) => ipcRenderer.on('complete-download-update', callback),
 })
 
 
