@@ -3,16 +3,6 @@ const { contextBridge, ipcRenderer } = require("electron");
 const { webUtils } = require('electron');
 window.addEventListener('DOMContentLoaded', () => {
     initDragDrop();
-
-    // lười nên dùng luôn DOM thay vì Vue API
-    document.getElementById("FixedButtonUpdateInpro").addEventListener("click", function () {
-        const progressElement = document.getElementById("update-progress-el");
-        if (progressElement.style.display === "none" || progressElement.style.display === "") {
-            progressElement.style.display = "block";
-        } else {
-            progressElement.style.display = "none";
-        }
-    });
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {
@@ -23,6 +13,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     requestGetStoreByKey: (key) => ipcRenderer.invoke('request-get-store', key),
     requestSetStoreByKey: (key, value) => ipcRenderer.invoke('request-set-store', key, value),
     requestUpdateToolbar: () => ipcRenderer.invoke('request-update-toolbar'),
+    requestOpenCurrentlyFolder: (item) => ipcRenderer.invoke('request-open-currently-folder', item),
     sendDialogSelectFolder: () => ipcRenderer.send('folder-selected-from-html'),
     onSettingsDialogOpen: (callback) => ipcRenderer.on('open-settings', (event) => callback()),
     onDownloadUpdate: (callback) => ipcRenderer.on('download-progress', (event, progress) => callback(progress)),

@@ -9,9 +9,9 @@ const isMac = process.platform === 'darwin';
 
 const store = new Store();
 let mainWindow;
-// require('electron-reload')(path.join(__dirname), {
-//     electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
-// });
+require('electron-reload')(path.join(__dirname), {
+    electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+});
 const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile} = require("./git_utils");
 const fs = require("node:fs");
 
@@ -52,6 +52,8 @@ function createWindow() {
         if (isDirectory(filePath)) {
             store.set('currentFolder', filePath);
             mainWindow.webContents.send('selected-folder', filePath);
+            // add to history
+            addToCurrentDirectoryList(filePath);
         }
     });
 
@@ -59,6 +61,8 @@ function createWindow() {
         const folderPath = await openLocalRepository();
         if (folderPath) {
             mainWindow.webContents.send('selected-folder', folderPath);
+            // add to history
+            addToCurrentDirectoryList(folderPath);
         }
     })
 
@@ -86,6 +90,33 @@ function createWindow() {
             store.set(key, value);
         } else {
             store.delete(key);
+        }
+    })
+
+    // handle validate & open folder in currently opened folders
+    ipcMain.handle('request-open-currently-folder', (event, item) => {
+        // kiểm tra xem folder có tồn tại trên hệ thống hay không?
+        if (isDirectory(item.folderPath)) {
+            // nếu có tồn tại
+            store.set('currentFolder', item.folderPath);
+            mainWindow.webContents.send('selected-folder', item.folderPath);
+            // add to history
+            addToCurrentDirectoryList(item.folderPath);
+        } else {
+            const choice = dialog.showMessageBoxSync(mainWindow, {
+                type: 'error',
+                buttons: ['Delete', 'Cancel'], // Các nút trong dialog
+                defaultId: 0, // Nút Delete
+                cancelId: 1, // Nút cancel
+                title: 'Invalid path',
+                message: 'The folder you just selected does not exist!',
+                detail: `The folder you just selected does not exist. Do you want to remove this folder from the recent folders list?`,
+            });
+
+            if (choice === 0) {
+                // xoá folder khỏi danh sách gần đây
+                deleteItemFromCurrentFolders(item);
+            }
         }
     })
 
@@ -117,6 +148,8 @@ app.whenReady().then(() => {
         if (folderPath && isDirectory(folderPath)) {
             store.set('currentFolder', folderPath);
             mainWindow.webContents.send('selected-folder', folderPath);
+            // add to history
+            addToCurrentDirectoryList(folderPath);
         }
     }
 
@@ -147,6 +180,8 @@ function updateMenuToolBar() {
                         const folderPath = await openLocalRepository();
                         if (folderPath) {
                             mainWindow.webContents.send('selected-folder', folderPath);
+                            // add to history
+                            addToCurrentDirectoryList(folderPath);
                         }
                     },
                 },
@@ -408,6 +443,25 @@ function checkForUpdates() {
         dialog.showErrorBox('Update Error', error.message || 'An unknown error occurred.');
         mainWindow.webContents.send('complete-download-update');
     });
+}
+
+function addToCurrentDirectoryList(folderPath) {
+    const folderName = path.basename(folderPath);
+    let directoryList = store.get('currentDirectoryList')??[];
+    const index = directoryList.findIndex((item) => item.folderName === folderName && item.folderPath === folderPath);
+    if (index !== -1) {
+        directoryList.splice(index, 1);
+    }
+    directoryList.unshift({folderName, folderPath});
+    store.set('currentDirectoryList', directoryList);
+}
+
+function deleteItemFromCurrentFolders(item) {
+    let directoryList = store.get('currentDirectoryList')??[];
+    const index = directoryList.indexOf(item);
+    if (index !== -1) {
+        directoryList.splice(index, 1);
+    }
 }
 
 function sleep(ms) {

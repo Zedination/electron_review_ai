@@ -1,3 +1,6 @@
+[v-cloak] {
+    display: none;
+}
 .width-100 {
     width: 100% !important;
 }
@@ -116,6 +119,14 @@
     z-index: 10;
     background-color: inherit;
 }
+
+#recentlyFolderOpenedDialog > div > div > input {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: inherit;
+}
+
 .detail-commit-area {
     width: calc(100% - 249px);
     padding-left: 0;
@@ -448,6 +459,18 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
     height: 60px;
 }
 
+#recentlyFolderOpenedDialog {
+    width: 50vw;
+    height: 80vh;
+}
+
+.truncate {
+    white-space: nowrap;        /* Không cho phép xuống dòng */
+    overflow: hidden;           /* Ẩn phần vượt ra ngoài */
+    text-overflow: ellipsis;    /* Hiển thị dấu "..." */
+}
+
+
 .circle-update-loading {
     position: fixed; /* Cố định vị trí */
     bottom: 20px; /* Cách cạnh dưới 20px */
@@ -475,8 +498,9 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
     border-radius: 10px;
     position: fixed; /* Cố định vị trí */
     bottom: 30px;
-    right: 80px;
-    width: calc(100vw - 120px);
+    right: 50px;
+    left: 50px;
+    /*width: calc(100vw - 120px);*/
 }
 
 .update-progress.dark {

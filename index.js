@@ -26,6 +26,15 @@ createApp({
         const currentFolder = ref(null);
         const theme = ref("system");
         const updaterProgress = ref(null);
+        const recentlyFolderOpenedDialog = ref(null);
+        const inputFilterRecentFolders = ref(null);
+        const searchCurrentFolderQuery = ref('');
+
+        const currentRepoList = ref([]);
+        //
+        // const updateProgressbar = ref(null);
+        // const fixedButtonUpdate = ref(null);
+
         let blockDiffList = [];
 
         // set theme khi khởi động
@@ -109,6 +118,13 @@ createApp({
                     || log.date.toLowerCase().includes(trimedQuery);
             })
         })
+
+        // khi click vào item trong recently folder
+        const onClickItemCurrentlyFolders = item => {
+            if (item.folderName === repoName.value) return;
+            window.electronAPI.requestOpenCurrentlyFolder({...item});
+            recentlyFolderOpenedDialog.value.close();
+        }
 
         window.addEventListener('message', (event) => {
             if (event.origin !== window.location.origin) {
@@ -198,6 +214,10 @@ createApp({
             selectedLogs.value = new Set();
             selectedFile.value = null;
             changedFiles.value = [];
+            // lấy danh sách folder mở gần nhất
+            window.electronAPI.requestGetStoreByKey('currentDirectoryList').then((data) => {
+                currentRepoList.value = data??[];
+            })
             loadDataGit();
         });
 
@@ -206,10 +226,54 @@ createApp({
             document.getElementById("settingsDialog").showModal();
         })
 
+        // khi người dùng mở recent folders dialog
+        const openCurrentFoldersDialog = () => {
+            recentlyFolderOpenedDialog.value.showModal();
+            // đóng dialog khi click ra bên ngoài dialog
+            recentlyFolderOpenedDialog.value.addEventListener('click', event => {
+                const rect = recentlyFolderOpenedDialog.value.getBoundingClientRect();
+                const isInDialog =
+                    event.clientX >= rect.left &&
+                    event.clientX <= rect.right &&
+                    event.clientY >= rect.top &&
+                    event.clientY <= rect.bottom;
+
+                if (!isInDialog) {
+                    recentlyFolderOpenedDialog.value.close(); // Đóng dialog
+                }
+            })
+        }
+
+        const filterListForCurrentFoldersDialog = computed(() => {
+            let text = searchCurrentFolderQuery.value;
+            if (text.trim().length === 0) {
+                return currentRepoList.value;
+            }
+            return currentRepoList.value.filter((item) => {
+                const trimedQuery = text.trim().toLowerCase();
+                return removeVietnameseTones(item.folderName.toLowerCase()).includes(removeVietnameseTones(trimedQuery))
+                    || removeVietnameseTones(item.folderPath.toLowerCase()).includes(removeVietnameseTones(trimedQuery));
+            })
+        })
+
         // Khi đang download update
         window.electronAPI.onDownloadUpdate((progress) => {
+            // let startDownloadFlag = false;
+            // if (!updaterProgress.value) {
+            //     startDownloadFlag = true;
+            // }
             console.log(progress);
             updaterProgress.value = progress;
+            // if (startDownloadFlag) {
+            //     fixedButtonUpdate.value.addEventListener("click", function () {
+            //         if (updateProgressbar.value.style.display === "none" || updateProgressbar.value.style.display === "") {
+            //             updateProgressbar.value.style.display = "block";
+            //         } else {
+            //             updateProgressbar.value.style.display = "none";
+            //         }
+            //     });
+            // }
+            // fixedButtonUpdate.value.ldBar.set(Math.round(updaterProgress.value.percent));
         })
 
         // Khi download xong (hoặc lỗi trong quá trình download)
@@ -313,6 +377,10 @@ createApp({
         });
 
         onMounted(() => {
+            // lấy danh sách folder mở gần nhất
+            window.electronAPI.requestGetStoreByKey('currentDirectoryList').then((data) => {
+                currentRepoList.value = data??[];
+            })
             loadDataGit();
         });
 
@@ -332,6 +400,13 @@ createApp({
             currentFolder,
             theme,
             updaterProgress,
+            // updateProgressbar,
+            // fixedButtonUpdate,
+            currentRepoList,
+            recentlyFolderOpenedDialog,
+            inputFilterRecentFolders,
+            filterListForCurrentFoldersDialog,
+            searchCurrentFolderQuery,
 
             // function
             selectItem,
@@ -343,6 +418,8 @@ createApp({
             openDialog,
             closeDialog,
             changeTheme,
+            onClickItemCurrentlyFolders,
+            openCurrentFoldersDialog,
         }
     },
 }).mount('#app');
