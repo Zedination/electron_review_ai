@@ -9,9 +9,9 @@ const isMac = process.platform === 'darwin';
 
 const store = new Store();
 let mainWindow;
-require('electron-reload')(path.join(__dirname), {
-    electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
-});
+// require('electron-reload')(path.join(__dirname), {
+//     electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+// });
 const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile} = require("./git_utils");
 const fs = require("node:fs");
 
