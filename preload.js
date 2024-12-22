@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     onSettingsDialogOpen: (callback) => ipcRenderer.on('open-settings', (event) => callback()),
     onDownloadUpdate: (callback) => ipcRenderer.on('download-progress', (event, progress) => callback(progress)),
     onCompleteDownloadUpdate: (callback) => ipcRenderer.on('complete-download-update', callback),
+    requestCheckoutBranch: (branchName, isRemote) => ipcRenderer.invoke('request-checkout-branch', branchName, isRemote),
 })
 
 

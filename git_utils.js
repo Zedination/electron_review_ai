@@ -32,12 +32,14 @@ async function getAllInfoGit(repoPath) {
         }
     }
     const branches = await git.branch();
+    const localBranches = await git.branchLocal()
     const log = await git.log();
     const repoName = path.basename(repoPath);
     return {
         validRepo: isValidRepo,
         repoName: repoName,
         branches: branches.all,
+        localBranches: localBranches.all,
         currentBranch: branches.current,
         logs: log.all
     }
@@ -120,10 +122,36 @@ async function getDiffTextByHashAndFile(repoPath, filePath, hashList, diffType) 
     return diffText;
 }
 
+async function checkoutBranch(repoPath, branchName, confirmCallback, errorCallbback) {
+    try {
+        const git = simpleGit(repoPath);
+        const status = await git.status();
+
+        const localBranches = await git.branchLocal();
+
+        let flag = '';
+        if (status.files.length > 0) {
+            let choice = await confirmCallback(`You have changes on this branch. Do you want to bring your changes to ${branchName}?`);
+            if (choice.response === 0) {
+                flag = '--merge';
+            } else return false;
+        }
+        if (localBranches.all.includes(branchName)) {
+            await git.checkout(branchName, [flag]);
+        } else {
+            await git.checkoutBranch(branchName.replace('remotes/origin/', ''), branchName, [flag]);
+        }
+        return true;
+    } catch (error) {
+        await errorCallbback(error.message);
+        return false;
+    }
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
 
-module.exports = { getGitCommits, getBranches, getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile};
+module.exports = { getGitCommits, getBranches, getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile, checkoutBranch};

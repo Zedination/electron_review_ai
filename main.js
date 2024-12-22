@@ -9,10 +9,10 @@ const isMac = process.platform === 'darwin';
 
 const store = new Store();
 let mainWindow;
-// require('electron-reload')(path.join(__dirname), {
-//     electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
-// });
-const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile} = require("./git_utils");
+require('electron-reload')(path.join(__dirname), {
+    electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+});
+const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile, checkoutBranch} = require("./git_utils");
 const fs = require("node:fs");
 
 function createWindow() {
@@ -123,6 +123,45 @@ function createWindow() {
     // handle update menu toolbar
     ipcMain.handle('request-update-toolbar', () => {
         updateMenuToolBar();
+    })
+
+    ipcMain.handle('request-checkout-branch', async (event, branchName, isRemote) => {
+
+        // nếu là remote branch, thông báo sẽ tạo nhánh local dựa trên nhánh remote này
+        if (isRemote) {
+            const option = {
+                type: 'question',
+                buttons: ['OK', 'Cancel'], // Các nút tùy chọn
+                title: 'Confirmation',
+                message: `Do you want to create and checkout branch ${branchName.replace('remotes/origin/', '')} based on the remote branch ${branchName}`,
+            };
+            const choice = dialog.showMessageBoxSync(mainWindow, option);
+            if (choice === 1) {
+                return false;
+            }
+        }
+
+        const confirmCallback = async message => {
+            const option = {
+                type: 'question',
+                buttons: ['OK', 'Cancel'], // Các nút tùy chọn
+                title: 'Confirmation',
+                message: message,
+            };
+            return dialog.showMessageBox(mainWindow, option);
+        }
+
+        const errorCallback = async message => {
+            const option = {
+                type: 'error',
+                buttons: ['OK'],
+                defaultId: 0,
+                title: 'Error',
+                message: message,
+            };
+            return dialog.showMessageBox(mainWindow, option);
+        }
+        return await checkoutBranch(store.get('currentFolder'), branchName, confirmCallback, errorCallback);
     })
 
 }

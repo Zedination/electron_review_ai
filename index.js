@@ -14,6 +14,7 @@ createApp({
         const repoName = ref('');
         const currentBranch = ref('');
         const branches = ref([]);
+        const localBranches = ref([]);
         const allLogs = ref([]);
         const selectedLogs = ref(new Set());
         const selectedFile = ref(null);
@@ -29,8 +30,12 @@ createApp({
         const recentlyFolderOpenedDialog = ref(null);
         const inputFilterRecentFolders = ref(null);
         const searchCurrentFolderQuery = ref('');
+        const resizeBranchListHandleEl = ref(null);
 
         const currentRepoList = ref([]);
+
+        const branchListDialog = ref(null);
+        const branchFilterKeyword = ref('');
         //
         // const updateProgressbar = ref(null);
         // const fixedButtonUpdate = ref(null);
@@ -118,6 +123,33 @@ createApp({
                     || log.date.toLowerCase().includes(trimedQuery);
             })
         })
+
+        // danh sách local branch theo điều kiện filter
+        const filteredLocalBranches = computed(() => {
+            if (branchFilterKeyword.value.length === 0) {
+                return localBranches.value;
+            }
+            return localBranches.value.filter(branch => branch.includes(branchFilterKeyword.value));
+        })
+
+        // danh sách remote branch theo điều kiện filter
+        const filteredRemoteBranches = computed(() => {
+            const remoteBranches = branches.value.filter(branch => !localBranches.value.includes(branch));
+            if (branchFilterKeyword.value.length === 0) {
+                return remoteBranches;
+            }
+            return remoteBranches.filter(branch => branch.includes(branchFilterKeyword.value));
+        })
+
+        // xử lý khi chuyển nhánh
+        const changeBranch = async (targetBranch, isRemote) => {
+
+            // kiểm tra tính hợp lệ của việc chuyển nhánh
+            let result = await window.electronAPI.requestCheckoutBranch(targetBranch, isRemote);
+            if (!result) return;
+            // nếu chuyển nhánh thành công thì load lại data git
+            loadDataGit();
+        }
 
         // khi click vào item trong recently folder
         const onClickItemCurrentlyFolders = item => {
@@ -244,6 +276,51 @@ createApp({
             })
         }
 
+        // mở dialog danh sách nhánh
+        const openBranchListDialog = (event) => {
+            if (branchListDialog.value.style.display === 'none') {
+                branchListDialog.value.style.display = 'block';
+
+                // xử lý kéo rộng hẹp cho danh sách commit
+                let isResizing = false;
+
+                resizeBranchListHandleEl.value.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+
+                    // Ngăn chọn văn bản
+                    document.body.classList.add('noselect');
+
+                    const initialWidth = branchListDialog.value.offsetWidth;
+                    const startX = e.clientX;
+
+                    const onMouseMove = (e) => {
+                        if (!isResizing) return;
+                        const newWidth = initialWidth + (e.clientX - startX);
+
+                        // min width và max width tính theo % view width
+                        const minWidth = (10 / 100) * window.innerWidth;
+                        const maxWidth = (60 / 100) * window.innerWidth;
+                        if (newWidth >= minWidth && newWidth <= maxWidth) {
+                            branchListDialog.value.style.width = `${newWidth}px`;
+                        }
+                    };
+
+                    const onMouseUp = () => {
+                        isResizing = false;
+                        // Cho phép chọn văn bản lại
+                        document.body.classList.remove('noselect');
+                        window.removeEventListener('mousemove', onMouseMove);
+                        window.removeEventListener('mouseup', onMouseUp);
+                    };
+
+                    window.addEventListener('mousemove', onMouseMove);
+                    window.addEventListener('mouseup', onMouseUp);
+                });
+            } else {
+                branchListDialog.value.style.display = 'none';
+            }
+        }
+
         const filterListForCurrentFoldersDialog = computed(() => {
             let text = searchCurrentFolderQuery.value;
             if (text.trim().length === 0) {
@@ -294,7 +371,6 @@ createApp({
              window.electronAPI.sendDialogSelectFolder();
         }
         const loadDataGit = async () => {
-            console.log("==== start load data ====");
             JsLoadingOverlay.show({
                 "overlayBackgroundColor": "#666666",
                 "overlayOpacity": "0.6",
@@ -312,7 +388,6 @@ createApp({
             });
             // kiểm tra xem store có lưu thông tin local repository gần nhất hay không?
             currentFolder.value = await window.electronAPI.requestGetStoreByKey('currentFolder');
-            console.log(currentFolder.value);
 
             // nếu như trước đó app đã mở một folder rồi
             if (currentFolder.value) {
@@ -330,9 +405,9 @@ createApp({
                     validRepo.value = gitInfo.validRepo;
                     repoName.value = gitInfo.repoName;
                     currentBranch.value = gitInfo.currentBranch;
+                    localBranches.value = gitInfo.localBranches;
                     branches.value = gitInfo.branches;
                     allLogs.value = gitInfo.logs;
-                    console.log(gitInfo.logs);
                 }
                 JsLoadingOverlay.hide();
             } else {
@@ -407,6 +482,11 @@ createApp({
             inputFilterRecentFolders,
             filterListForCurrentFoldersDialog,
             searchCurrentFolderQuery,
+            branchListDialog,
+            branchFilterKeyword,
+            filteredLocalBranches,
+            filteredRemoteBranches,
+            resizeBranchListHandleEl,
 
             // function
             selectItem,
@@ -420,6 +500,8 @@ createApp({
             changeTheme,
             onClickItemCurrentlyFolders,
             openCurrentFoldersDialog,
+            openBranchListDialog,
+            changeBranch,
         }
     },
 }).mount('#app');

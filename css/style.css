@@ -1,6 +1,13 @@
 [v-cloak] {
     display: none;
 }
+
+.noselect {
+    user-select: none; /* Ngăn chọn văn bản */
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
 .width-100 {
     width: 100% !important;
 }
@@ -468,6 +475,31 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
     white-space: nowrap;        /* Không cho phép xuống dòng */
     overflow: hidden;           /* Ẩn phần vượt ra ngoài */
     text-overflow: ellipsis;    /* Hiển thị dấu "..." */
+}
+
+#branchListDialog {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    width: 20vw;
+    left: 249px;
+    height: calc(100vh - 49px);
+    transform: translate(0, 0);
+    background-color: inherit;
+}
+
+#branchListDialog .list-branch-div {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#branchListDialog .resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px;
+    height: 100%;
+    cursor: ew-resize;
 }
 
 
