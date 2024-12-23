@@ -194,9 +194,21 @@ createApp({
 
                 // gửi endpoint và các thông tin liên quan trở lại iframe để thực thi xử lý
                 let iframeEl = document.getElementById('isolated-frame');
-                let prompt = 'Luôn luôn trả lời bằng tiếng Việt. Tìm lỗi sai và đề xuất sửa lỗi dựa trên đoạn diff string mà tôi cung cấp dưới đây:\n';
                 const targetBlock = blockDiffList.find(value => value.id === receivedData.id);
-                prompt += targetBlock.unifiedDiff + '\n';
+                let prompt = `
+I have a code diff string generated from git diff. Please review the changes based on the following rules:
+1. Ensure that all variables are named meaningfully and follow camelCase convention.
+2. Check for proper error handling and logging.
+3. Ensure there are no hard-coded values; use constants or configuration files where appropriate.
+4. Look for unnecessary repetition of code and suggest optimizations.
+5. Check for compliance with security best practices (e.g., no exposure of sensitive data, proper input validation).
+6. Ensure code comments explain non-trivial logic.
+
+Here is the diff string:
+${targetBlock.unifiedDiff}
+
+Please identify potential issues and suggest improvements.
+`;
                 iframeEl.contentWindow.postMessage({
                     endpoint,
                     prompt,
