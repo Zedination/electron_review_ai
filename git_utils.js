@@ -148,10 +148,35 @@ async function checkoutBranch(repoPath, branchName, confirmCallback, errorCallbb
     }
 }
 
+/**
+ * Fetch mặc định (toàn bộ remote repository)
+ * @param repoPath
+ * @returns {Promise<void>}
+ */
+async function fetchOrigin(repoPath) {
+    const git = simpleGit(repoPath);
+    try {
+        let result = await git.fetch();
+        console.log(result);
+    } catch (error) {
+        console.error('Error during fetch:', error.message);
+    }
+}
+
+async function getAllBranches(repoPath) {
+    const git = simpleGit(repoPath);
+    const branches = await git.branch();
+    const localBranches = await git.branchLocal()
+    return {
+        branches: branches.all,
+        localBranches: localBranches.all,
+    }
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
 
-module.exports = { getGitCommits, getBranches, getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile, checkoutBranch};
+module.exports = { getGitCommits, getBranches, getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile, checkoutBranch, fetchOrigin, getAllBranches};

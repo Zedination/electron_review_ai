@@ -36,6 +36,8 @@ createApp({
 
         const branchListDialog = ref(null);
         const branchFilterKeyword = ref('');
+
+        const isLoadingFetch = ref(false);
         //
         // const updateProgressbar = ref(null);
         // const fixedButtonUpdate = ref(null);
@@ -147,8 +149,28 @@ createApp({
             // kiểm tra tính hợp lệ của việc chuyển nhánh
             let result = await window.electronAPI.requestCheckoutBranch(targetBranch, isRemote);
             if (!result) return;
-            // nếu chuyển nhánh thành công thì load lại data git
+            // nếu chuyển nhánh thành công thì reset trạng thái các file đang diff và load lại data git
+            selectedLogs.value = new Set();
+            selectedFile.value = null;
+            changedFiles.value = [];
+            // lấy danh sách folder mở gần nhất
+            window.electronAPI.requestGetStoreByKey('currentDirectoryList').then((data) => {
+                currentRepoList.value = data??[];
+            })
             loadDataGit();
+        }
+
+        // xử lý khi fetch origin default
+        const fetchOrigins = async () => {
+            isLoadingFetch.value = true;
+            try {
+                await window.electronAPI.requestFetchOrigin();
+                // sau khi fetch xong thì cập nhật lại danh sách nhánh
+                await loadBranchList();
+            } catch (e) {
+                console.error(e);
+            }
+            isLoadingFetch.value = false;
         }
 
         // khi click vào item trong recently folder
@@ -370,6 +392,14 @@ createApp({
         const selectFolderFromHtml = () => {
              window.electronAPI.sendDialogSelectFolder();
         }
+
+        // load lại danh sách các nhánh
+        const loadBranchList = async () => {
+            let result = await window.electronAPI.requestGetAllBranches(currentFolder.value);
+            this.branches.value = result.branches??[];
+            this.localBranches.value = result.localBranches??[];
+        }
+
         const loadDataGit = async () => {
             JsLoadingOverlay.show({
                 "overlayBackgroundColor": "#666666",
@@ -487,6 +517,7 @@ createApp({
             filteredLocalBranches,
             filteredRemoteBranches,
             resizeBranchListHandleEl,
+            isLoadingFetch,
 
             // function
             selectItem,
@@ -502,6 +533,7 @@ createApp({
             openCurrentFoldersDialog,
             openBranchListDialog,
             changeBranch,
+            fetchOrigins,
         }
     },
 }).mount('#app');

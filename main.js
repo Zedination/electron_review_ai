@@ -1,5 +1,5 @@
 // main.js
-const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, net} = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog, globalShortcut, net, shell} = require('electron');
 const path = require('path');
 const Store = require('electron-store');
 const { spawn, exec } = require('child_process');
@@ -12,7 +12,7 @@ let mainWindow;
 require('electron-reload')(path.join(__dirname), {
     electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
 });
-const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile, checkoutBranch} = require("./git_utils");
+const { getAllInfoGit, getChangedFilesByDiffHash, getDiffTextByHashAndFile, checkoutBranch, fetchOrigin, getAllBranches} = require("./git_utils");
 const fs = require("node:fs");
 
 function createWindow() {
@@ -164,6 +164,15 @@ function createWindow() {
         return await checkoutBranch(store.get('currentFolder'), branchName, confirmCallback, errorCallback);
     })
 
+
+    ipcMain.handle('request-fetch-origin', async event => {
+        await fetchOrigin(store.get('currentFolder'));
+    })
+
+    ipcMain.handle('request-get-all-branches', async (event, repoPath) => {
+        return await getAllBranches(repoPath);
+    })
+
 }
 
 app.whenReady().then(() => {
@@ -277,6 +286,16 @@ function updateMenuToolBar() {
                     }
                 },
                 {
+                    label: 'Open in Explorer',
+                    enabled: store.get('currentFolder') !== undefined && store.get('currentFolder') !== null,
+                    click: async () => {
+                        const folderPath = store.get('currentFolder');
+                        if (folderPath) {
+                            openInExplorer(folderPath);
+                        }
+                    }
+                },
+                {
                     label: 'Open in Visual Studio Code',
                     enabled: store.get('currentFolder') !== undefined && store.get('currentFolder') !== null,
                     click: () => openInIDE('code'),
@@ -330,6 +349,20 @@ function openInCmd(folderPath) {
     } else {
         throw new Error('Unsupported platform');
     }
+}
+
+function openInExplorer(folderPath) {
+    shell.openPath(folderPath)
+        .then((result) => {
+            if (result) {
+                console.error('Error opening folder:', result);
+            } else {
+                console.log('Folder opened successfully!');
+            }
+        })
+        .catch((err) => {
+            console.error('Failed to open folder:', err);
+        });
 }
 
 function openInIDE(ide) {

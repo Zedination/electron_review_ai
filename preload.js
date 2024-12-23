@@ -19,6 +19,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     onDownloadUpdate: (callback) => ipcRenderer.on('download-progress', (event, progress) => callback(progress)),
     onCompleteDownloadUpdate: (callback) => ipcRenderer.on('complete-download-update', callback),
     requestCheckoutBranch: (branchName, isRemote) => ipcRenderer.invoke('request-checkout-branch', branchName, isRemote),
+    requestFetchOrigin: () => ipcRenderer.invoke('request-fetch-origin'),
+    requestGetAllBranches: (repoPath) => ipcRenderer.invoke('request-get-all-branches', repoPath),
 })
 
 

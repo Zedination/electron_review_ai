@@ -546,3 +546,22 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
     border-radius: 15px;
 }
 
+.rotate-icon {
+    display: inline-block;
+    animation: spin 1s linear infinite; /* Quay tròn liên tục */
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg); /* Bắt đầu từ góc 0 */
+    }
+    to {
+        transform: rotate(360deg); /* Quay 360 độ */
+    }
+}
+
+.disabled-btn {
+    pointer-events: none; /* Vô hiệu hóa sự kiện chuột */
+    opacity: 0.5; /* Làm mờ nút để hiển thị trạng thái bị vô hiệu hóa */
+    cursor: not-allowed; /* Thay đổi con trỏ chuột */
+}
