@@ -38,6 +38,9 @@ createApp({
         const branchFilterKeyword = ref('');
 
         const isLoadingFetch = ref(false);
+
+        const tabMenuActive = ref(1);
+        const providerSelection = ref('');
         //
         // const updateProgressbar = ref(null);
         // const fixedButtonUpdate = ref(null);
@@ -292,6 +295,11 @@ Please identify potential issues and suggest improvements.
             document.getElementById("settingsDialog").showModal();
         })
 
+        // Khi người dùng chọn tab menu trong dialog settings;
+        const selectTabBarSettingDialog = indexTab => {
+            tabMenuActive.value = indexTab;
+        }
+
         // khi người dùng mở recent folders dialog
         const openCurrentFoldersDialog = () => {
             recentlyFolderOpenedDialog.value.showModal();
@@ -499,6 +507,7 @@ Please identify potential issues and suggest improvements.
                 currentRepoList.value = data??[];
             })
             loadDataGit();
+            // document.getElementById("settingsDialog").showModal();
         });
 
         return {
@@ -530,6 +539,8 @@ Please identify potential issues and suggest improvements.
             filteredRemoteBranches,
             resizeBranchListHandleEl,
             isLoadingFetch,
+            tabMenuActive,
+            providerSelection,
 
             // function
             selectItem,
@@ -546,6 +557,7 @@ Please identify potential issues and suggest improvements.
             openBranchListDialog,
             changeBranch,
             fetchOrigins,
+            selectTabBarSettingDialog,
         }
     },
 }).mount('#app');

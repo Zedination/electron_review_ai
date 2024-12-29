@@ -2,7 +2,7 @@ async function requestOpenAIServerCompatible(prompt, endpoint, targetElement) {
     targetElement.innerHTML = ``;
     let htmlPrefix = `
     <style>
-        @import url('css/github-markdown.min.css');
+        @import url('/css/github-markdown.min.css');
     </style>
     <article class="markdown-body">`;
 

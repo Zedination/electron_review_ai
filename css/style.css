@@ -359,7 +359,12 @@ dialog::backdrop {
     border-radius: 6px;
     width: 600px;
     height: 550px;
+    min-width: 30vw;
+    min-height: 50vh;
+    max-width: 80vw;
+    max-height: 80vh;
     overflow-x: hidden;
+    resize: both;
     position: relative;
 }
 
@@ -384,9 +389,56 @@ dialog::backdrop {
     outline: none;
 }
 
+.draggable-header {
+    /*cursor: move;*/
+    user-select: none;
+}
+
 #settingsDialog .tab-bar {
-    height: calc(550px - 50px - 60px);
-    /*width: 200px;*/
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 200px;
+}
+
+#settingsDialog .tab-container {
+    width: calc(100% - 200px);
+    height: calc(100% - 60px);
+}
+
+#settingsDialog .tab-container .dialog-content {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+}
+
+#settingsDialog .tab-container .dialog-content .table-api-header {
+    .editable-cell {
+        padding: 8px;
+        cursor: text;
+    }
+
+    .editable-cell:focus {
+        outline: none;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        text-align: left;
+        padding: 8px;
+    }
+}
+
+#settingsDialog form {
+    height: calc(100% - 50px);
+}
+
+#settingsDialog fieldset, #settingsDialog .preferences-container {
+    height: 100%;
 }
 
 #settingsDialog form .tab-bar-item {
@@ -416,7 +468,7 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
 
 #settingsDialog .radio-button-component {
     position: relative;
-    width: calc(50% - 15px);
+    width: 166px;
     border-radius: 5px;
     /*flex: 1 1 calc(50% - 30px);*/
 }
@@ -463,7 +515,9 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
     position: absolute;
     width: 100%;
     bottom: 0;
+    right: 0;
     height: 60px;
+    background-color: inherit;
 }
 
 #recentlyFolderOpenedDialog {
@@ -481,7 +535,7 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
     display: none;
     position: fixed;
     z-index: 100;
-    width: 20vw;
+    width: 399px;
     left: 249px;
     height: calc(100vh - 49px);
     transform: translate(0, 0);
