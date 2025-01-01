@@ -205,7 +205,13 @@ Please identify potential issues and suggest improvements.
             theme: 'system',
             activeProvider: 'custom',
             customServerUrl: 'http://localhost:8000/v1/chat/completions',
-            customServerRequestHeaderJson: '{"key":"Content-Type","value":"application/json"}',
+            // customServerRequestHeaderJson: '[{"key":"Content-Type","value":"application/json"}]',
+            customServerRequestHeader: [
+                {
+                    key: 'Content-Type',
+                    value: 'application/json'
+                }
+            ],
             customServerRequestBody: '',
             promptTemplate: defaultPrompt,
             // todo: thêm các setting khác sau

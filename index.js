@@ -25,7 +25,6 @@ createApp({
         const iframeRefDiff = ref(null);
         const searchCommitQuery = ref('');
         const currentFolder = ref(null);
-        const theme = ref("system");
         const updaterProgress = ref(null);
         const recentlyFolderOpenedDialog = ref(null);
         const inputFilterRecentFolders = ref(null);
@@ -49,11 +48,13 @@ createApp({
             theme: '',
             activeProvider: '',
             customServerUrl: '',
-            customServerRequestHeaderJson: '',
+            // customServerRequestHeaderJson: '[]',
+            customServerRequestHeader: [],
             customServerRequestBody: '',
             promptTemplate: '',
             // todo: thêm các setting khác sau
         });
+
         //
         // const updateProgressbar = ref(null);
         // const fixedButtonUpdate = ref(null);
@@ -61,18 +62,14 @@ createApp({
         let blockDiffList = [];
 
         // set theme khi khởi động
-        window.electronAPI.requestGetStoreByKey('theme').then((data) => {
-            console.log(data);
-            if (!data) {
-                theme.value = 'system';
-            } else {
-                theme.value = data;
-            }
+        window.electronAPI.requestGetStoreByKey('setting').then((data) => {
+
+            Object.assign(settingDialogData, data);
             const html = document.querySelector('html');
-            if (theme.value === 'light') {
+            if (data.theme === 'light') {
                 html.setAttribute('data-color-mode', 'light');
                 html.setAttribute('data-dark-theme', 'light');
-            } else if (theme.value === 'dark') {
+            } else if (data.theme === 'dark') {
                 html.setAttribute('data-color-mode', 'dark');
                 html.setAttribute('data-dark-theme', 'dark');
             } else {
@@ -317,12 +314,23 @@ Please identify potential issues and suggest improvements.
             // khởi tạo data cho popup setting
             const srcObject = await window.electronAPI.requestGetStoreByKey('setting');
             Object.assign(settingDialogData, srcObject);
-            console.log(settingDialogData);
         }
 
         // Khi người dùng chọn tab menu trong dialog settings;
         const selectTabBarSettingDialog = indexTab => {
             tabMenuActive.value = indexTab;
+        }
+
+        const addCustomServerRequestHeader = () => {
+            settingDialogData.customServerRequestHeader.push({key: '', value: ''})
+        }
+
+        const editCustomServerRequestHeader = (event, rowIndex, column) => {
+            settingDialogData.customServerRequestHeader[rowIndex][column] = event.target.textContent.trim();
+        }
+
+        const deleteCustomServerRequestHeaderItem = (rowIndex) => {
+            settingDialogData.customServerRequestHeader.splice(rowIndex, 1);
         }
 
         const openDialog = async () => {
@@ -334,14 +342,15 @@ Please identify potential issues and suggest improvements.
             initSettingData();
         }
 
-        const onSubmitSettingForm = event => {
+        const onSubmitSettingForm = async event => {
             event.preventDefault();
-            const formData = new FormData(settingsForm.value);
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value; // key là tên của field, value là giá trị
-            });
-            console.log('Form Data:', data);
+            // const formData = new FormData(settingsForm.value);
+            // const data = {};
+            // formData.forEach((value, key) => {
+            //     data[key] = value; // key là tên của field, value là giá trị
+            // });
+            await window.electronAPI.requestSetStoreByKey('setting', JSON.parse(JSON.stringify(settingDialogData)));
+            closeDialog();
         }
 
         // khi người dùng mở recent folders dialog
@@ -512,11 +521,6 @@ Please identify potential issues and suggest improvements.
             await window.electronAPI.requestUpdateToolbar();
         }
 
-        const changeTheme = async theme => {
-            theme.value = theme;
-            await window.electronAPI.requestSetStoreByKey('theme', theme);
-        }
-
         watch(() => settingDialogData.theme, (newValue) => {
             console.log(newValue);
             const html = document.querySelector('html');
@@ -564,7 +568,6 @@ Please identify potential issues and suggest improvements.
             iframeRefDiff,
             filteredLogs,
             currentFolder,
-            theme,
             updaterProgress,
             // updateProgressbar,
             // fixedButtonUpdate,
@@ -595,7 +598,6 @@ Please identify potential issues and suggest improvements.
             selectFolderFromHtml,
             openDialog,
             closeDialog,
-            changeTheme,
             onClickItemCurrentlyFolders,
             openCurrentFoldersDialog,
             openBranchListDialog,
@@ -603,6 +605,9 @@ Please identify potential issues and suggest improvements.
             fetchOrigins,
             selectTabBarSettingDialog,
             onSubmitSettingForm,
+            addCustomServerRequestHeader,
+            editCustomServerRequestHeader,
+            deleteCustomServerRequestHeaderItem,
         }
     },
 }).mount('#app');
