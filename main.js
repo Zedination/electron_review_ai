@@ -184,6 +184,37 @@ app.whenReady().then(() => {
         }
     });
 
+    // Xử lý khi người dùng mở app lần đầu tiên sau khi cài đặt thành công
+    const isFirstRun = store.get('isNotFirstRun')??true;
+    if (isFirstRun) {
+        // khởi tạo config mặc định ở đây
+        const defaultPrompt = `I have a code diff string generated from git diff. Please review the changes based on the following rules:
+1. Ensure that all variables are named meaningfully and follow camelCase convention.
+2. Check for proper error handling and logging.
+3. Ensure there are no hard-coded values; use constants or configuration files where appropriate.
+4. Look for unnecessary repetition of code and suggest optimizations.
+5. Check for compliance with security best practices (e.g., no exposure of sensitive data, proper input validation).
+6. Ensure code comments explain non-trivial logic.
+
+Here is the diff string:
+[[CODE]]
+
+Please identify potential issues and suggest improvements.
+`
+        let defaultSetting = {
+            theme: 'system',
+            activeProvider: 'custom',
+            customServerUrl: 'http://localhost:8000/v1/chat/completions',
+            customServerRequestHeaderJson: '{"key":"Content-Type","value":"application/json"}',
+            customServerRequestBody: '',
+            promptTemplate: defaultPrompt,
+            // todo: thêm các setting khác sau
+        }
+        store.set('defaultSetting', defaultSetting);
+        store.set('setting', defaultSetting);
+        store.set('isNotFirstRun', true);
+    }
+
     // Xử lý khi khởi động ứng dụng, mở folder từ context menu
     const args = process.argv;
     // fs.writeFile('D:\\Source Code\\Node JS\\setting2.txt', args.join('\n'), err => {});

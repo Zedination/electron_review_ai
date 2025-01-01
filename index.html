@@ -194,7 +194,7 @@
     </div>
 </div>
 
-<dialog id="settingsDialog" class="border" aria-labelledby="__Dialog_preferences_Options"
+<dialog id="settingsDialog" ref="settingDialogRef" class="border" aria-labelledby="__Dialog_preferences_Options"
         tabindex="-1">
     <div class="dialog-header border-bottom d-flex align-items-center draggable-header">
         <h1 id="__Dialog_preferences_Options">Settings</h1>
@@ -205,7 +205,7 @@
             </svg>
         </button>
     </div>
-    <form style="background-color: inherit;">
+    <form style="background-color: inherit;" name="settingsForm" id="settingsForm" ref="settingsForm" @submit.prevent="onSubmitSettingForm($event)">
         <fieldset style="background-color: inherit;">
             <div class="preferences-container row" style="background-color: inherit;">
                 <div class="tab-bar vertical d-flex flex-column border-right pt-3 pl-4" role="tablist">
@@ -264,24 +264,36 @@
                             <div role="radiogroup" aria-labelledby="theme-heading" class="theme-selector d-flex flex-wrap">
                                 <div class="radio-button-component width-fit d-flex flex-justify-start border mt-3 mr-3">
                                     <input type="radio" id="__RadioButton_light"
-                                           tabindex="-1" value="light" v-model="theme" name="theme">
+                                           tabindex="-1" value="light" v-model="settingDialogData.theme" name="theme">
                                     <label for="__RadioButton_light">
                                         <span class="d-flex flex-column">
-                                            <img
-                                                    src="images/ghd_light.svg"
-                                                    alt="">
+                                            <span class="select-theme-swatch">
+                                                <img
+                                                        src="images/ghd_light.svg"
+                                                        alt="">
+                                            </span>
                                             <span class="theme-value-label">Light</span>
                                         </span>
                                     </label>
                                 </div>
-                                <div class="radio-button-component width-fit d-flex flex-justify-start border mt-3 mr-3"><input type="radio" id="__RadioButton_dark"
-                                                                           tabindex="-1" value="dark" v-model="theme" name="theme"><label
-                                        for="__RadioButton_dark"><span class="d-flex flex-column"><img
-                                        src="images/ghd_dark.svg"
-                                        alt=""><span class="theme-value-label">Dark</span></span></label></div>
+                                <div class="radio-button-component width-fit d-flex flex-justify-start border mt-3 mr-3">
+                                    <input type="radio" id="__RadioButton_dark"
+                                           tabindex="-1" value="dark" v-model="settingDialogData.theme"
+                                           name="theme"><label
+                                        for="__RadioButton_dark">
+                                    <span class="d-flex flex-column">
+                                        <span class="select-theme-swatch">
+                                            <img
+                                                    src="images/ghd_dark.svg"
+                                                    alt="">
+                                        </span>
+                                        <span class="theme-value-label">Dark</span>
+                                </span>
+                                </label>
+                                </div>
                                 <div class="radio-button-component d-flex flex-justify-start border mt-3 mr-3">
                                     <input type="radio" id="__RadioButton_system"
-                                           tabindex="0" value="system" v-model="theme" name="theme">
+                                           tabindex="0" value="system" v-model="settingDialogData.theme" name="theme">
                                     <label
                                             for="__RadioButton_system" class="width-100">
                                         <span class="d-flex flex-column">
@@ -305,7 +317,7 @@
                                     <label for="provider-select">Select provider</label>
                                 </div>
                                 <div class="form-group-body">
-                                    <select v-model="providerSelection" class="form-select" id="provider-select">
+                                    <select v-model="settingDialogData.activeProvider" class="form-select" id="provider-select" name="activeProvider">
                                         <option value="openai">OpenAI</option>
                                         <option value="anthropic">Anthropic</option>
                                         <option value="google">Google</option>
@@ -313,13 +325,13 @@
                                         <option value="custom">Custom OpenAI Compatible Server (Local)</option>
                                     </select>
                                 </div>
-                                <div v-show="providerSelection === 'custom'" class="form-group">
+                                <div v-show="settingDialogData.activeProvider === 'custom'" class="form-group">
                                     <div class="form-group">
                                         <div class="form-group-header">
                                             <label for="custom-server-url">URL</label>
                                         </div>
                                         <div class="form-group-body d-flex">
-                                            <input class="form-control mb-2 flex-grow-1" type="text" id="custom-server-url" />
+                                            <input v-model="settingDialogData.customServerUrl" name="customServerUrl" class="form-control mb-2 flex-grow-1" type="text" id="custom-server-url" />
                                             <button class="btn mb-2">Test connection</button>
                                         </div>
                                     </div>
@@ -363,41 +375,44 @@
                                             </tr>
                                             </tbody>
                                         </table>
+                                        <input type="hidden" v-model="settingDialogData.customServerRequestHeaderJson" name="customServerRequestHeaderJson" id="customServerHeaderJson">
                                     </div>
                                     <div class="form-group">
                                         <div class="form-group-header">
                                             <label for="custom-server-body">Body</label>
                                         </div>
                                         <div class="form-group-body">
-                                            <textarea class="form-control width-fit" id="custom-server-body"></textarea>
+                                            <textarea v-model="settingDialogData.customServerRequestBody" name="customServerRequestBody" class="form-control width-fit" id="custom-server-body"></textarea>
                                         </div>
                                     </div>
                                 </div>
-                        </div>
-                        <div class="appearance-section" v-show="tabMenuActive===4">
-
-                        </div>
-                        <div class="appearance-section" v-show="tabMenuActive===5">
-
+                                <div v-show="settingDialogData.activeProvider !== 'custom'">
+                                    <h2>this feature is not available</h2>
+                                </div>
                         </div>
                     </div>
                         <div class="appearance-section" v-show="tabMenuActive===4">
                             <h2>Prompts Setting</h2>
-
                             <div class="form-group width-fit">
                                 <div class="form-group-header">
                                     <label for="prompt-text">Prompts Review Code Template</label>
                                 </div>
                                 <div class="form-group-body">
-                                    <textarea class="form-control width-fit" id="prompt-text"></textarea>
+                                    <textarea v-model="settingDialogData.promptTemplate" name="promptTemplate" class="form-control width-fit" id="prompt-text"></textarea>
                                 </div>
                             </div>
+                        </div>
+                        <div class="appearance-section" v-show="tabMenuActive===5">
+
+                        </div>
+                        <div class="appearance-section" v-show="tabMenuActive===6">
+
                         </div>
                 </div>
             </div>
             <div class="dialog-footer border-top flex-content-center">
                 <div class="button-group d-flex flex-justify-end">
-                    <button class="btn btn-primary mr-2" type="button" @click="closeDialog">Save</button>
+                    <button class="btn btn-primary mr-2" type="submit" @click="closeDialog">Save</button>
                     <button class="btn btn-invisible mr-2" type="reset" @click="closeDialog">Cancel</button>
                 </div>
             </div>

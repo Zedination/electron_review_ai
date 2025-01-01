@@ -357,8 +357,8 @@ dialog::backdrop {
     padding: 0;
     border: 1px solid #141414;
     border-radius: 6px;
-    width: 600px;
-    height: 550px;
+    width: 50vw;
+    height: 50vh;
     min-width: 30vw;
     min-height: 50vh;
     max-width: 80vw;
@@ -395,7 +395,7 @@ dialog::backdrop {
 }
 
 #settingsDialog .tab-bar {
-    height: 100%;
+    height: calc(100% - 60px);
     overflow-y: auto;
     overflow-x: hidden;
     width: 200px;
@@ -493,6 +493,17 @@ html[data-color-mode='light'] #settingsDialog form .tab-bar-item:hover{
     position: relative;
     height: 94px;
     width: 100%;
+}
+
+#settingsDialog .radio-button-component .select-theme-swatch {
+    position: relative;
+    height: 94px;
+    width: 100%;
+
+    img {
+        width: 100%;
+        height: 100%;
+    }
 }
 
 #settingsDialog .radio-button-component .system-theme-swatch img {

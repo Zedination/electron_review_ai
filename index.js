@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
 VueJs code
 */
 
-const { createApp, ref, onMounted, onBeforeUnmount, computed, defineModel, watch } = Vue;
+const { createApp, ref, reactive, onMounted, onBeforeUnmount, onBeforeMount, computed, defineModel, watch } = Vue;
 createApp({
     setup() {
         const validRepo = ref(false);
@@ -41,6 +41,19 @@ createApp({
 
         const tabMenuActive = ref(1);
         const providerSelection = ref('');
+
+        const settingDialogRef = ref(null);
+        const settingsForm = ref(null);
+        const isRenderSettingDialog = ref(false);
+        const settingDialogData = reactive({
+            theme: '',
+            activeProvider: '',
+            customServerUrl: '',
+            customServerRequestHeaderJson: '',
+            customServerRequestBody: '',
+            promptTemplate: '',
+            // todo: thêm các setting khác sau
+        });
         //
         // const updateProgressbar = ref(null);
         // const fixedButtonUpdate = ref(null);
@@ -72,6 +85,10 @@ createApp({
                     html.setAttribute('data-dark-theme', 'light');
                 }
             }
+        })
+
+        onBeforeMount(() => {
+
         })
 
         const selectItem = (log, event) => {
@@ -291,13 +308,40 @@ Please identify potential issues and suggest improvements.
         });
 
         // Khi người dùng mở Settings
-        window.electronAPI.onSettingsDialogOpen(() => {
-            document.getElementById("settingsDialog").showModal();
+        window.electronAPI.onSettingsDialogOpen(async () => {
+            openDialog();
         })
+
+        // khởi tạo data cho popup setting
+        const initSettingData = async () => {
+            // khởi tạo data cho popup setting
+            const srcObject = await window.electronAPI.requestGetStoreByKey('setting');
+            Object.assign(settingDialogData, srcObject);
+            console.log(settingDialogData);
+        }
 
         // Khi người dùng chọn tab menu trong dialog settings;
         const selectTabBarSettingDialog = indexTab => {
             tabMenuActive.value = indexTab;
+        }
+
+        const openDialog = async () => {
+            await initSettingData();
+            settingDialogRef.value.showModal();
+        }
+        const closeDialog = () => {
+            settingDialogRef.value.close();
+            initSettingData();
+        }
+
+        const onSubmitSettingForm = event => {
+            event.preventDefault();
+            const formData = new FormData(settingsForm.value);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value; // key là tên của field, value là giá trị
+            });
+            console.log('Form Data:', data);
         }
 
         // khi người dùng mở recent folders dialog
@@ -467,20 +511,14 @@ Please identify potential issues and suggest improvements.
             }
             await window.electronAPI.requestUpdateToolbar();
         }
-        const openDialog = () => {
-            document.getElementById("settingsDialog").showModal();
-        }
-        const closeDialog = () => {
-            document.getElementById("settingsDialog").close();
-        }
 
         const changeTheme = async theme => {
             theme.value = theme;
             await window.electronAPI.requestSetStoreByKey('theme', theme);
         }
 
-        watch(theme, (newValue) => {
-            window.electronAPI.requestSetStoreByKey('theme', newValue);
+        watch(() => settingDialogData.theme, (newValue) => {
+            console.log(newValue);
             const html = document.querySelector('html');
             if (newValue === 'light') {
                 html.setAttribute('data-color-mode', 'light');
@@ -498,7 +536,9 @@ Please identify potential issues and suggest improvements.
                     html.setAttribute('data-dark-theme', 'light');
                 }
             }
-            generateHtmlFromDiffText(diffText.value);
+            if (selectedFile.value) {
+                generateHtmlFromDiffText(diffText.value);
+            }
         });
 
         onMounted(() => {
@@ -541,6 +581,10 @@ Please identify potential issues and suggest improvements.
             isLoadingFetch,
             tabMenuActive,
             providerSelection,
+            settingsForm,
+            isRenderSettingDialog,
+            settingDialogRef,
+            settingDialogData,
 
             // function
             selectItem,
@@ -558,6 +602,7 @@ Please identify potential issues and suggest improvements.
             changeBranch,
             fetchOrigins,
             selectTabBarSettingDialog,
+            onSubmitSettingForm,
         }
     },
 }).mount('#app');
