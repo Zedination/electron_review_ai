@@ -283,7 +283,7 @@ Please identify potential issues and suggest improvements.
             const blockInfoStr = JSON.stringify(blockDiffList.map(value => ({id: value.id, line: value.line})));
 
             // sử dụng iframe
-            const srcDoc = await fetchTemplate('template_diff.html', {styleDiffEl, styleFrame, blockInfoStr, diffHtmlValue: diffHtml.value});
+            const srcDoc = await fetchTemplate('template_diff.html', {styleDiffEl, styleFrame, blockInfoStr, diffHtmlValue: diffHtml.value, colorScheme});
 
             //generate html from diff
             const iframeDocument = iframeRefDiff.value.contentDocument || iframeRefDiff.value.contentWindow.document;

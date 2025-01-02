@@ -1,4 +1,4 @@
-async function requestOpenAIServerCompatible(prompt, endpoint, targetElement) {
+async function requestOpenAIServerCompatible(prompt, endpoint, targetElement, scrollAnchor) {
     targetElement.innerHTML = ``;
     let htmlPrefix = `
     <style>
@@ -56,6 +56,7 @@ async function requestOpenAIServerCompatible(prompt, endpoint, targetElement) {
                 if (content) {
                     mdContent += content;
                     targetElement.innerHTML = marked.parse(mdContent);
+                    scrollAnchor.scrollIntoView({ behavior: 'smooth' });
                 }
             }
         }
