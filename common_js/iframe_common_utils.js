@@ -1,4 +1,4 @@
-async function requestOpenAIServerCompatible(prompt, endpoint, targetElement, scrollAnchor) {
+async function requestOpenAIServerCompatible(prompt, endpoint, targetElement, scrollAnchor, commentBox) {
     targetElement.innerHTML = ``;
     let htmlPrefix = `
     <style>
@@ -40,6 +40,9 @@ async function requestOpenAIServerCompatible(prompt, endpoint, targetElement, sc
     const decoder = new TextDecoder('utf-8');
     let done = false;
 
+    // khi bắt đầu hỏi AI, scroll đến vị trí đầu tiên của câu trả lời của AI
+    scrollAnchor.style.top = '0';
+    scrollAnchor.scrollIntoView({ behavior: 'smooth' });
     while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
@@ -56,7 +59,12 @@ async function requestOpenAIServerCompatible(prompt, endpoint, targetElement, sc
                 if (content) {
                     mdContent += content;
                     targetElement.innerHTML = marked.parse(mdContent);
-                    scrollAnchor.scrollIntoView({ behavior: 'smooth' });
+                    // scroll tự động để hiển thị nội dung mới nhất
+                    if (commentBox.offsetHeight > window.innerHeight) {
+                        scrollAnchor.style.top = '';
+                        scrollAnchor.style.bottom = `${window.innerHeight}px`;
+                        scrollAnchor.scrollIntoView({ behavior: 'smooth' });
+                    }
                 }
             }
         }
