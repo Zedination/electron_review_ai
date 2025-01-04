@@ -21,6 +21,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
     requestCheckoutBranch: (branchName, isRemote) => ipcRenderer.invoke('request-checkout-branch', branchName, isRemote),
     requestFetchOrigin: () => ipcRenderer.invoke('request-fetch-origin'),
     requestGetAllBranches: (repoPath) => ipcRenderer.invoke('request-get-all-branches', repoPath),
+    requestSelectFile: (allowExtensions) => ipcRenderer.invoke('request-select-file', allowExtensions),
+    requestSelectFolder: () => ipcRenderer.invoke('request-select-folder'),
+    requestOpenShell: (path) => ipcRenderer.invoke('request-open-shell', path),
 })
 
 

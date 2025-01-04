@@ -149,7 +149,7 @@
                     <span class="description">{{getFirstLogSelected().author_name}}</span>
                     <svg aria-hidden="true" class="octicon icon" version="1.1" viewBox="0 0 16 16" tabindex="-1" height="16" width="16"><path d="M11.93 8.5a4.002 4.002 0 0 1-7.86 0H.75a.75.75 0 0 1 0-1.5h3.32a4.002 4.002 0 0 1 7.86 0h3.32a.75.75 0 0 1 0 1.5Zm-1.43-.75a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z"></path></svg>
                     <span class="description">{{getFirstLogSelected().hash}}</span>
-                    <button class="button-component copy-button" type="button" aria-label="Copy the full SHA"><svg aria-hidden="true" class="octicon icon" version="1.1" viewBox="0 0 32 32" tabindex="-1" height="16" width="16"><path d="M7.024 3.75c0-.966.784-1.75 1.75-1.75H20.25c.966 0 1.75.784 1.75 1.75v11.498a1.75 1.75 0 0 1-1.75 1.75H8.774a1.75 1.75 0 0 1-1.75-1.75Zm1.75-.25a.25.25 0 0 0-.25.25v11.498c0 .139.112.25.25.25H20.25a.25.25 0 0 0 .25-.25V3.75a.25.25 0 0 0-.25-.25Z"></path><path d="M1.995 10.749a1.75 1.75 0 0 1 1.75-1.751H5.25a.75.75 0 1 1 0 1.5H3.745a.25.25 0 0 0-.25.25L3.5 20.25c0 .138.111.25.25.25h9.5a.25.25 0 0 0 .25-.25v-1.51a.75.75 0 1 1 1.5 0v1.51A1.75 1.75 0 0 1 13.25 22h-9.5A1.75 1.75 0 0 1 2 20.25l-.005-9.501Z"></path></svg></button>
+                    <button @click="copyTextToClipboard(getFirstLogSelected().hash)"  class="tooltipped tooltipped-s button-component copy-button" type="button" aria-label="Copy the full SHA"><svg aria-hidden="true" class="octicon icon" version="1.1" viewBox="0 0 32 32" tabindex="-1" height="16" width="16"><path d="M7.024 3.75c0-.966.784-1.75 1.75-1.75H20.25c.966 0 1.75.784 1.75 1.75v11.498a1.75 1.75 0 0 1-1.75 1.75H8.774a1.75 1.75 0 0 1-1.75-1.75Zm1.75-.25a.25.25 0 0 0-.25.25v11.498c0 .139.112.25.25.25H20.25a.25.25 0 0 0 .25-.25V3.75a.25.25 0 0 0-.25-.25Z"></path><path d="M1.995 10.749a1.75 1.75 0 0 1 1.75-1.751H5.25a.75.75 0 1 1 0 1.5H3.745a.25.25 0 0 0-.25.25L3.5 20.25c0 .138.111.25.25.25h9.5a.25.25 0 0 0 .25-.25v-1.51a.75.75 0 1 1 1.5 0v1.51A1.75 1.75 0 0 1 13.25 22h-9.5A1.75 1.75 0 0 1 2 20.25l-.005-9.501Z"></path></svg></button>
                 </div>
             </div>
             <div v-if="selectedLogs.size > 1" class="border detail-commit">
@@ -412,6 +412,74 @@
                             </div>
                         </div>
                         <div class="appearance-section" v-show="tabMenuActive===5">
+                            <h2 class="mb-4">Advanced Settings</h2>
+                            <div class="form-group mb-2">
+                                <div class="form-group-header">
+                                    <label for="customServerBackendLocation">Backend Server Location</label>
+                                </div>
+                                <div class="form-group-body d-flex">
+                                    <input v-model="settingDialogData.customServerBackendLocation" name="customServerBackendLocation" class="form-control flex-grow-1" type="text" id="customServerBackendLocation" />
+                                    <button @click="selectServerExe()" type="button" class="btn mr-1">Change</button>
+                                    <button class="btn" type="button" @click="openInShell(settingDialogData.customServerBackendLocation)">Show in file Exproler</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-2">
+                                <div class="form-group-header">
+                                    <label for="customServerModelLocation">Model File Location</label>
+                                    <p class="description">Support GGUF model file</p>
+                                </div>
+                                <div class="form-group-body d-flex">
+                                    <input v-model="settingDialogData.customServerModelLocation" name="customServerModelLocation" class="form-control flex-grow-1" type="text" id="customServerModelLocation" />
+                                    <button class="btn mr-1" type="button" @click="selectServerGGUF()">Change</button>
+                                    <button class="btn" type="button" @click="openInShell(settingDialogData.customServerModelLocation)">Show in file Exproler</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-2">
+                                <h2>Model Advanced Configuration</h2>
+                                <div class="form-group-body mt-2">
+                                    <label for="customServerContextLength" class="description">Context Length</label>
+                                    <button type="button" class="btn-octicon tooltipped tooltipped-e tooltipped-multiline" aria-label="The n_ctx parameter specifies the size of the prompt context window, determining how many tokens the model can process in a single input sequence. A larger context window allows the model to consider more preceding text, which can enhance coherence in generated outputs, especially for longer inputs or during extended interactions. The default value is 2048 tokens, but it can be adjusted based on the model's capacity and the specific requirements of your application.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon octicon" viewBox="0 0 16 16" width="16" height="16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
+                                    </button>
+                                    <input v-model="settingDialogData.customServerContextLength" name="customServerContextLength" class="ml-1 form-control input-sm width-15" type="number" id="customServerContextLength"/>
+                                </div>
+                                <div class="form-group-body mt-1">
+                                    <label for="customServerSeed" class="description">Seed</label>
+                                    <button type="button" class="btn-octicon tooltipped tooltipped-e tooltipped-multiline" aria-label="The seed parameter sets the random number generator's seed for sampling. A specific integer ensures reproducibility, while -1 uses a random seed for non-deterministic outputs. By default, it is set to LLAMA_DEFAULT_SEED.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon octicon" viewBox="0 0 16 16" width="16" height="16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
+                                    </button>
+                                    <input v-model="settingDialogData.customServerSeed" name="customServerSeed" class="ml-1 form-control input-sm width-15" type="number" id="customServerSeed"/>
+                                </div>
+                                <div class="form-group-body mt-1">
+                                    <label for="customServerCPUThread" class="description">CPU Thread</label>
+                                    <button type="button" class="btn-octicon tooltipped tooltipped-e tooltipped-multiline" aria-label="The n_threads parameter specifies the number of CPU threads utilized during text generation. Allocating more threads can enhance performance by parallelizing computations, especially on multi-core processors. If set to None, the system automatically determines the optimal number of threads based on available hardware resources. Use -1 for max cpu threads.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon octicon" viewBox="0 0 16 16" width="16" height="16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
+                                    </button>
+                                    <input v-model="settingDialogData.customServerCPUThread" name="customServerCPUThread" class="ml-1 form-control input-sm width-15" type="number" id="customServerCPUThread"/>
+                                </div>
+                                <div class="form-group-body mt-1">
+                                    <label for="customServerGPULayer" class="description">GPU Offload</label>
+                                    <button type="button" class="btn-octicon tooltipped tooltipped-e tooltipped-multiline" aria-label="The number of layers to put on the GPU. The rest will be on the CPU. Set -1 to move all to GPU.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon octicon" viewBox="0 0 16 16" width="16" height="16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
+                                    </button>
+                                    <input v-model="settingDialogData.customServerGPULayer" name="customServerGPULayer" class="ml-1 form-control input-sm width-15" type="number" id="customServerGPULayer"/>
+                                </div>
+                                <div class="form-group-body mt-1 mb-1">
+                                    <label for="customServerGPUMain" class="description">Main GPU</label>
+                                    <button type="button" class="btn-octicon tooltipped tooltipped-e tooltipped-multiline" aria-label="Main GPU to use.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon octicon" viewBox="0 0 16 16" width="16" height="16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>
+                                    </button>
+                                    <select v-model="settingDialogData.customServerGPUMain" class="form-select input-sm" id="customServerGPUMain" name="customServerGPUMain">
+                                        <option selected value="0">Only CPU</option>
+                                        <option v-for="(item, index) in gpuList" :value="index+1">{{item}}</option>
+                                    </select>
+                                </div>
+                                <p class="description">Other configurations, such as Temperature, are included in the body of the request.</p>
+                            </div>
+
+
 
                         </div>
                         <div class="appearance-section" v-show="tabMenuActive===6">

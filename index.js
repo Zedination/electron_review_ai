@@ -44,6 +44,7 @@ createApp({
         const settingDialogRef = ref(null);
         const settingsForm = ref(null);
         const isRenderSettingDialog = ref(false);
+        const gpuList = ref([]);
         const settingDialogData = reactive({
             theme: '',
             activeProvider: '',
@@ -52,6 +53,13 @@ createApp({
             customServerRequestHeader: [],
             customServerRequestBody: '',
             promptTemplate: '',
+            customServerBackendLocation: '',
+            customServerModelLocation: '',
+            customServerContextLength: 2048,
+            customServerSeed: 0xFFFFFFFF,
+            customServerCPUThread: -1,
+            customServerGPULayer: 0,
+            customServerGPUMain: 0,
             // todo: thêm các setting khác sau
         });
 
@@ -314,6 +322,7 @@ Please identify potential issues and suggest improvements.
             // khởi tạo data cho popup setting
             const srcObject = await window.electronAPI.requestGetStoreByKey('setting');
             Object.assign(settingDialogData, srcObject);
+            gpuList.value = await window.electronAPI.requestGetStoreByKey('gpus');
         }
 
         // Khi người dùng chọn tab menu trong dialog settings;
@@ -351,6 +360,39 @@ Please identify potential issues and suggest improvements.
             // });
             await window.electronAPI.requestSetStoreByKey('setting', JSON.parse(JSON.stringify(settingDialogData)));
             closeDialog();
+        }
+
+        // method mở một folder bất kỳ
+        const openFolder = async () => {
+            return await window.electronAPI.requestSelectFolder();
+        }
+
+        // method chọn file theo định dạng cho phép
+        const openDialogSelectFile = async (allowExtensions) => {
+            return await window.electronAPI.requestSelectFile(allowExtensions);
+        }
+
+        /**
+         * Open path in default shell (File Explorer, Finder,...)
+         * @param path
+         */
+        const openInShell = path => {
+            window.electronAPI.requestOpenShell(path);
+        }
+
+        // chọn file exe chạy server local
+        const selectServerExe = async () => {
+            let filePath = await window.electronAPI.requestSelectFile(['exe', 'msi']);
+            settingDialogData.customServerBackendLocation = filePath;
+        }
+
+        /**
+         * Chọn file model gguf
+         * @returns {Promise<void>}
+         */
+        const selectServerGGUF = async () => {
+            let filePath = await window.electronAPI.requestSelectFile(['gguf']);
+            settingDialogData.customServerModelLocation = filePath;
         }
 
         // khi người dùng mở recent folders dialog
@@ -452,6 +494,12 @@ Please identify potential issues and suggest improvements.
         window.electronAPI.onCompleteDownloadUpdate(() => {
             updaterProgress.value = null;
         })
+
+        const copyTextToClipboard = (text) => {
+            navigator.clipboard.writeText(text).then(() => {
+            }).catch(err => {
+            });
+        }
 
         function getGravatarUrl(email) {
             const hash = md5(email);
@@ -588,6 +636,7 @@ Please identify potential issues and suggest improvements.
             isRenderSettingDialog,
             settingDialogRef,
             settingDialogData,
+            gpuList,
 
             // function
             selectItem,
@@ -608,6 +657,12 @@ Please identify potential issues and suggest improvements.
             addCustomServerRequestHeader,
             editCustomServerRequestHeader,
             deleteCustomServerRequestHeaderItem,
+            copyTextToClipboard,
+            openFolder,
+            openDialogSelectFile,
+            selectServerExe,
+            openInShell,
+            selectServerGGUF,
         }
     },
 }).mount('#app');

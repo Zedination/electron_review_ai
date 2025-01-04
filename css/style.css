@@ -99,6 +99,10 @@
     outline: none;
 }
 
+.tooltipped:hover::after {
+    /*z-index: 99999;*/
+}
+
 .commit-message-text{
     font-size: 12px;
     margin-bottom: -3px;

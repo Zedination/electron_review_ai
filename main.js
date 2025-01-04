@@ -120,6 +120,64 @@ function createWindow() {
         }
     })
 
+    /**
+     * handle chọn file từ index.html
+     */
+    ipcMain.handle('request-select-file', async (event, allowExtensions) => {
+        const result = await dialog.showOpenDialog(mainWindow, {
+            title: 'Select an executable file',
+            buttonLabel: 'Open',
+            properties: ['openFile'], // Chỉ cho phép chọn file
+            filters: [
+                { name: 'Executable Files', extensions: allowExtensions },
+            ],
+        });
+
+        if (!result.canceled && result.filePaths.length > 0) {
+            console.log('Selected file:', result.filePaths[0]);
+            // Kiểm tra phần mở rộng của file
+            if (!allowExtensions.map(x => `.${x}`).includes(path.extname(result.filePaths[0]).toLowerCase())) {
+                dialog.showErrorBox('Invalid File', `Please select a file with an extension from the following list: ${allowExtensions.toString()}`);
+                return null;
+            }
+            return result.filePaths[0];
+        } else {
+            console.log('No file selected');
+            return null;
+        }
+    })
+
+    /**
+     * handle mở folder
+     */
+    ipcMain.handle("request-select-folder", async () => {
+        const result = await dialog.showOpenDialog(mainWindow, {
+            title: 'Select a folder',
+            buttonLabel: 'Select',
+            properties: ['openDirectory'], // Chỉ cho phép chọn thư mục
+        });
+
+        if (!result.canceled && result.filePaths.length > 0) {
+            console.log('Selected folder:', result.filePaths[0]); // Hiển thị đường dẫn thư mục được chọn
+            return result.filePaths[0];
+        } else {
+            console.log('No folder selected');
+            return null;
+        }
+    })
+
+    /**
+     * handle mở đường dẫn trong shell mặc định (File Explorer, Finder,...)
+     */
+    ipcMain.handle("request-open-shell",  (event, path) => {
+        if (isDirectory(path)) {
+            shell.openPath(path);
+        } else {
+            // highlight file in default shell
+            shell.showItemInFolder(path);
+        }
+    })
+
     // handle update menu toolbar
     ipcMain.handle('request-update-toolbar', () => {
         updateMenuToolBar();
@@ -177,6 +235,15 @@ function createWindow() {
 
 app.whenReady().then(() => {
     createWindow();
+    // app.getGPUInfo('complete').then(result => {
+    //     console.log(result);
+    // }).catch(error => {
+    //     console.error(error);
+    // });
+    getSystemGPUs().then(gpus => {
+        console.log(gpus);
+        store.set('gpus', gpus);
+    })
     app.on('activate', () => {
         // Trên macOS, mở lại cửa sổ khi ứng dụng được kích hoạt lại
         if (BrowserWindow.getAllWindows().length === 0) {
@@ -214,6 +281,15 @@ Please identify potential issues and suggest improvements.
             ],
             customServerRequestBody: '',
             promptTemplate: defaultPrompt,
+            customServerBackendLocation: '',
+            customServerModelLocation: '',
+            customServerContextLength: 2048,
+            customServerSeed: 0xFFFFFFFF,
+            customServerCPUThread: -1,
+            customServerGPULayer: 0,
+            customServerGPUMain: 0,
+
+
             // todo: thêm các setting khác sau
         }
         store.set('defaultSetting', defaultSetting);
@@ -571,6 +647,61 @@ function deleteItemFromCurrentFolders(item) {
     if (index !== -1) {
         directoryList.splice(index, 1);
     }
+}
+
+/**
+ * Lấy danh sách tên GPU từ hệ thống
+ * @returns {Promise<string[]>} - Danh sách tên GPU hoặc mảng rỗng nếu lỗi xảy ra
+ */
+async function getSystemGPUs() {
+    return new Promise((resolve) => {
+        const platform = os.platform();
+
+        if (platform === 'win32') {
+            // Windows: Sử dụng lệnh wmic
+            exec('wmic path win32_VideoController get name', (error, stdout) => {
+                if (error) {
+                    console.error('Error executing WMIC command:', error);
+                    return resolve([]); // Trả về mảng rỗng khi có lỗi
+                }
+                const gpus = stdout
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line && line !== 'Name'); // Loại bỏ dòng tiêu đề "Name"
+                resolve(gpus);
+            });
+        } else if (platform === 'linux') {
+            // Linux: Sử dụng lệnh lspci
+            exec('lspci | grep VGA', (error, stdout) => {
+                if (error) {
+                    console.error('Error executing lspci command:', error);
+                    return resolve([]); // Trả về mảng rỗng khi có lỗi
+                }
+                const gpus = stdout
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line); // Loại bỏ dòng trống
+                resolve(gpus);
+            });
+        } else if (platform === 'darwin') {
+            // macOS: Sử dụng lệnh system_profiler
+            exec('system_profiler SPDisplaysDataType', (error, stdout) => {
+                if (error) {
+                    console.error('Error executing system_profiler command:', error);
+                    return resolve([]); // Trả về mảng rỗng khi có lỗi
+                }
+                const gpus = stdout
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.startsWith('Chipset Model:'))
+                    .map(line => line.replace('Chipset Model:', '').trim());
+                resolve(gpus);
+            });
+        } else {
+            console.error('Unsupported platform:', platform);
+            resolve([]); // Trả về mảng rỗng nếu hệ điều hành không được hỗ trợ
+        }
+    });
 }
 
 function sleep(ms) {
