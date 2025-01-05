@@ -57,9 +57,11 @@ createApp({
             customServerModelLocation: '',
             customServerContextLength: 2048,
             customServerSeed: 0xFFFFFFFF,
-            customServerCPUThread: -1,
+            customServerCPUThread: Math.max(Math.floor(navigator.hardwareConcurrency / 2), 1),
             customServerGPULayer: 0,
             customServerGPUMain: 0,
+            customServerPort: 8000,
+            customServerHost: '127.0.0.1',
             // todo: thêm các setting khác sau
         });
 
